@@ -3,6 +3,7 @@ package com.ktb.community.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CreatePostRequestDto {
     @NotBlank(message = "제목은 필수 입력 입니다.")
+    @Length(max = 30)
     String title;
     @NotBlank(message = "내용은 필수 입력입니다.")
     String content;

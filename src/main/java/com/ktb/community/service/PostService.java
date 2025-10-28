@@ -110,12 +110,10 @@ public class PostService {
         return new CursorPageResponseDto<>(postContent, nextCursor, hasNext);
     }
 
-    public PostDetailResponseDto getPostContent(Long postId) {
-        Post post = this.postRepository.findById(postId).orElse(null);
+    public PostDetailResponseDto getPostContent(Long postId, String token) {
+        Long userId = this.jwtUtil.extractUserIdFromToken(token);
 
-        if (post == null) {
-            throw new IllegalArgumentException("The post does not exist.");
-        }
+        Post post = this.postRepository.findByWithUser(postId).orElseThrow(() -> new PostNotFoundException("Not found post"));
 
         List<String> images = this.imageRepository.findByPostIdAndDeletedAtIsNullOrderByDisplayOrderAsc(post.getId())
                 .stream()
@@ -123,12 +121,12 @@ public class PostService {
                 .toList();
 
         Count count = this.countRepository.findByPostId(post.getId()).orElse(null);
-
         return PostDetailResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .author(post.getUser().getNickname())
+                .isMine(userId.equals(post.getUser().getId()))
                 .images(images)
                 .createdAt(post.getCreatedAt())
                 .views(count != null ? count.getViewCount() : 0L)

@@ -64,7 +64,7 @@ public class RefreshTokenService {
         return this.jwtUtil.generateAccessToken(refresh.getUser().getId(), refresh.getUser().getEmail());
     }
 
-    // 무조건 refresh token을 재갱신 해주기
+
     @Transactional
     public ReIssueRefreshTokenDto reIssueRefreshToken(String refreshToken) {
         // 존재하지 않는 다면 유효하지 않은 토큰

@@ -39,8 +39,9 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponseDto<PostDetailResponseDto>> getPostDetail(@PathVariable @Positive Long postId) {
-        PostDetailResponseDto post = this.postService.getPostContent(postId);
+    public ResponseEntity<ApiResponseDto<PostDetailResponseDto>> getPostDetail(@PathVariable @Positive Long postId, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        PostDetailResponseDto post = this.postService.getPostContent(postId, token);
         return ResponseEntity.ok().body(ApiResponseDto.success(post));
     }
 
@@ -107,7 +108,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponseDto<?>> deleteLike(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader){
+    public ResponseEntity<ApiResponseDto<?>> deleteLike(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
         LikeResponseDto likeResponseDto = this.likeService.unLikePost(postId, token);
