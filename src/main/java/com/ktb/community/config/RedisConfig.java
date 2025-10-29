@@ -46,25 +46,4 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    public ListOperations<String, Object> getListOperations() {
-        // List객체에 대해서 다양한 연산을 수행할 수 있도록 설정
-        return this.redisTemplate().opsForList();
-    }
-
-    public ValueOperations<String, Object> getValueOperations() {
-        // Value (단일 값)에 대해서 다양한 연산을 수행할 수 있도록 설정
-        return this.redisTemplate().opsForValue();
-    }
-
-    public int executeOperation(Runnable operation) {
-        // 등록, 수정, 삭제에 대해서 처리 및 예외처리를 수행
-        try {
-            operation.run();
-            return 1;
-        } catch (Exception e) {
-            log.error(String.valueOf(e));
-            return 0;
-        }
-    }
-
 }
