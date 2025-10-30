@@ -19,9 +19,13 @@ spring:
     check-template-location: true
     prefix: classpath:/templates/
     suffix: .html
+  data:
+    redis:
+      host: localhost
+      port: 6379
 jwt:
   expiration:
-    access: 86400000
+    access: 1800000
     refresh: 1209600000
   secret: ${JWT_SECRET}
 
