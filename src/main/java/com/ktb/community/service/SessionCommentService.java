@@ -12,12 +12,11 @@ import com.ktb.community.exception.custom.CommentNotFoundException;
 import com.ktb.community.exception.custom.PostNotFoundException;
 import com.ktb.community.exception.custom.UnauthorizedException;
 import com.ktb.community.exception.custom.UserNotFoundException;
-import com.ktb.community.jwt.JwtUtil;
 import com.ktb.community.repository.CommentRepository;
 import com.ktb.community.repository.PostRepository;
 import com.ktb.community.repository.UserRepository;
+import com.ktb.community.session.SessionUtil;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,27 +24,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
-@Slf4j
 @Service
-@Profile("jwt")
-public class CommentService {
-    CommentRepository commentRepository;
-    PostRepository postRepository;
-    UserRepository userRepository;
-    JwtUtil jwtUtil;
+@Profile("session")
+public class SessionCommentService {
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final SessionUtil sessionUtil;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public SessionCommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, SessionUtil sessionUtil) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
+        this.sessionUtil = sessionUtil;
     }
 
+    public CursorCommentResponseDto<CommentResponseDto> getCommentList(Long postId, Long cursor, int size, String sid) {
 
-    public CursorCommentResponseDto<CommentResponseDto> getCommentList(Long postId, Long cursor, int size, String token) {
-
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+        Long userId = sessionUtil.getSession(sid).getUserId();
 
         List<Comment> comments;
         Pageable pageable = PageRequest.of(0, size + 1);
@@ -75,12 +71,14 @@ public class CommentService {
 
         Long nextCursor = !commentList.isEmpty() ? commentList.getLast().getId() : null;
 
+
         return new CursorCommentResponseDto<>(commentList, nextCursor, hasNext);
     }
 
     @Transactional
-    public CrudCommentResponseDto writeComment(Long postId, String token, CreateCommentRequestDto createCommentRequestDto) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto writeComment(Long postId, String sid, CreateCommentRequestDto createCommentRequestDto) {
+        Long userId = this.sessionUtil.getSession(sid).getUserId();
+
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Not found post"));
         User user = this.userRepository.findById(userId)
@@ -97,8 +95,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CrudCommentResponseDto modifyComment(String token, UpdateCommentRequestDto updateCommentRequestDto) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto modifyComment(String sid, UpdateCommentRequestDto updateCommentRequestDto) {
+        Long userId = sessionUtil.getSession(sid).getUserId();
         // 작성자가 맞는지부터확인
         Comment comment = this.commentRepository.findById(updateCommentRequestDto.getCommentId())
                 .orElseThrow(() -> new CommentNotFoundException("Not found comment"));
@@ -113,8 +111,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CrudCommentResponseDto removeComment(Long commentId, String token) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto removeComment(Long commentId, String sid) {
+        Long userId = this.sessionUtil.getSession(sid).getUserId();
         Comment comment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Not found comment"));
 
@@ -127,4 +125,7 @@ public class CommentService {
 
         return new CrudCommentResponseDto(commentId);
     }
+
+
+
 }

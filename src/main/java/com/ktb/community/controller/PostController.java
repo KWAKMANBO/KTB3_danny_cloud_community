@@ -11,12 +11,14 @@ import com.ktb.community.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/posts")
+@Profile("jwt")
 public class PostController {
     private final PostService postService;
     private final CommentService commentService;
