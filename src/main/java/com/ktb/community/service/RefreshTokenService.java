@@ -125,4 +125,10 @@ public class RefreshTokenService {
         Duration duration = Duration.between(now, expirationAt);
         return (int) duration.getSeconds();
     }
+
+    public void removeAllRefreshToken(Long userId) {
+        String key = "refresh_token:" + userId;
+        redis.deleteSingleData(key);
+    }
+
 }
