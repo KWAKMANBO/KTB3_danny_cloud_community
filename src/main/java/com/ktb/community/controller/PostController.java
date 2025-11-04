@@ -39,18 +39,18 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponseDto<PostDetailResponseDto>> getPostDetail(@PathVariable @Positive Long postId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        PostDetailResponseDto post = this.postService.getPostContent(postId, token);
+    public ResponseEntity<ApiResponseDto<PostDetailResponseDto>> getPostDetail(@PathVariable @Positive Long postId, Authentication authentication) {
+        String email = authentication.getName();
+        PostDetailResponseDto post = this.postService.getPostContent(postId, email);
         return ResponseEntity.ok().body(ApiResponseDto.success(post));
     }
 
     @GetMapping("/{postId}/comments")
     public ResponseEntity<ApiResponseDto<?>> getComment(@PathVariable Long postId, @RequestParam(required = false) Long cursor,
-                                                        @RequestParam(defaultValue = "5") int size, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+                                                        @RequestParam(defaultValue = "5") int size, Authentication authentication) {
+        String email = authentication.getName();
 
-        CursorCommentResponseDto<CommentResponseDto> cursorCommentResponseDto = this.commentService.getCommentList(postId, cursor, size, token);
+        CursorCommentResponseDto<CommentResponseDto> cursorCommentResponseDto = this.commentService.getCommentList(postId, cursor, size, email);
         return ResponseEntity.ok().body(ApiResponseDto.success(cursorCommentResponseDto));
     }
 
@@ -61,57 +61,57 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<ApiResponseDto<?>> modifyPost(@PathVariable Long postId, @RequestBody ModifyPostRequestDto modifyPostRequestDto, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        CrudPostResponseDto modifiedPost = this.postService.modifyPostContent(postId, token, modifyPostRequestDto);
+    public ResponseEntity<ApiResponseDto<?>> modifyPost(@PathVariable Long postId, @RequestBody ModifyPostRequestDto modifyPostRequestDto, Authentication authentication) {
+        String email = authentication.getName();
+        CrudPostResponseDto modifiedPost = this.postService.modifyPostContent(postId, email, modifyPostRequestDto);
         return ResponseEntity.ok().body(ApiResponseDto.success(modifiedPost));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponseDto<?>> deletePost(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        CrudPostResponseDto crudPostResponseDto = this.postService.removePost(postId, token);
+    public ResponseEntity<ApiResponseDto<?>> deletePost(@PathVariable Long postId, Authentication authentication) {
+        String email = authentication.getName();
+        CrudPostResponseDto crudPostResponseDto = this.postService.removePost(postId, email);
         return ResponseEntity.ok().body(ApiResponseDto.success(crudPostResponseDto));
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponseDto<?>> createComment(@PathVariable Long postId, @RequestBody @Valid CreateCommentRequestDto createCommentRequestDto, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponseDto<?>> createComment(@PathVariable Long postId, @RequestBody @Valid CreateCommentRequestDto createCommentRequestDto, Authentication authentication) {
+        String email = authentication.getName();
 
-        CrudCommentResponseDto crudCommentResponseDto = this.commentService.writeComment(postId, token, createCommentRequestDto);
+        CrudCommentResponseDto crudCommentResponseDto = this.commentService.writeComment(postId, email, createCommentRequestDto);
         return ResponseEntity.ok().body(ApiResponseDto.success(crudCommentResponseDto));
     }
 
     @PatchMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponseDto<?>> updateComment(@PathVariable Long postId, @RequestBody @Valid UpdateCommentRequestDto updateCommentRequestDto, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponseDto<?>> updateComment(@PathVariable Long postId, @RequestBody @Valid UpdateCommentRequestDto updateCommentRequestDto, Authentication authentication) {
+        String email = authentication.getName();
 
-        CrudCommentResponseDto updateCommentResponseDto = this.commentService.modifyComment(token, updateCommentRequestDto);
+        CrudCommentResponseDto updateCommentResponseDto = this.commentService.modifyComment(email, updateCommentRequestDto);
         return ResponseEntity.ok().body(ApiResponseDto.success(updateCommentResponseDto));
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<ApiResponseDto<?>> deleteComment(@PathVariable Long commentId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponseDto<?>> deleteComment(@PathVariable Long commentId, Authentication authentication) {
+        String email = authentication.getName();
 
-        CrudCommentResponseDto deletedCommentResponseDto = this.commentService.removeComment(commentId, token);
+        CrudCommentResponseDto deletedCommentResponseDto = this.commentService.removeComment(commentId, email);
 
         return ResponseEntity.ok().body(ApiResponseDto.success(deletedCommentResponseDto));
     }
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponseDto<?>> createLike(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponseDto<?>> createLike(@PathVariable Long postId, Authentication authentication) {
+        String email = authentication.getName();
 
-        LikeResponseDto likeResponseDto = this.likeService.likePost(postId, token);
+        LikeResponseDto likeResponseDto = this.likeService.likePost(postId, email);
         return ResponseEntity.ok().body(ApiResponseDto.success(likeResponseDto));
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponseDto<?>> deleteLike(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponseDto<?>> deleteLike(@PathVariable Long postId, Authentication authentication) {
+        String email = authentication.getName();
 
-        LikeResponseDto likeResponseDto = this.likeService.unLikePost(postId, token);
+        LikeResponseDto likeResponseDto = this.likeService.unLikePost(postId, email);
         return ResponseEntity.ok().body(ApiResponseDto.success(likeResponseDto));
     }
 

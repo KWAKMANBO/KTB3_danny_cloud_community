@@ -1,19 +1,14 @@
 package com.ktb.community.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,9 +17,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.SignatureException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -76,9 +68,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = this.getJwtFromRequest(request);
             // StringUtils.hasText 메서드는
             // 문자열이 null이 아니고, 길이가 0보다크고, 공백이아닌 문자를 하나라도 갖고있으면 true를 반환
-            if (StringUtils.hasText(jwt) && this.jwtUtil.validateToken(jwt)) {
+            if (StringUtils.hasText(jwt) && this.jwtUtil.parse(jwt) != null) {
                 // jwt가 값을 가지고 있고, 유효성이 검증 됐다면
-                String email = this.jwtUtil.extractEmailFromToken(jwt);
+                String email = this.jwtUtil.getEmailFromToken(jwt);
 
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
                 // UsernamePasswordAuthenticationToken클래스는 사용자 인증을 처리하는 중요한 역할을 수행

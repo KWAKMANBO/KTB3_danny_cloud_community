@@ -94,7 +94,7 @@ public class AuthController {
         var reIssued = this.refreshTokenService.reIssueRefreshToken(refreshToken);
 
         // 실제 토큰의 남은 만료 시간 계산
-        int actualMaxAge = this.refreshTokenService.calculateRemainingSeconds(reIssued.getRefreshToken());
+        int actualMaxAge = this.refreshTokenService.getRemainingSecond(reIssued.getRefreshToken());
 
         // 새 refresh token을 쿠키에 설정
         Cookie newRefreshTokenCookie = new Cookie("refresh_token", reIssued.getRefreshToken());

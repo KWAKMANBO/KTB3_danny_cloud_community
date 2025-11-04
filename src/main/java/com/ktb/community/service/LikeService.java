@@ -2,7 +2,6 @@ package com.ktb.community.service;
 
 import com.ktb.community.dto.response.LikeResponseDto;
 import com.ktb.community.entity.*;
-import com.ktb.community.exception.custom.AlreadyExistLikeException;
 import com.ktb.community.exception.custom.NotExistLikeException;
 import com.ktb.community.exception.custom.PostNotFoundException;
 import com.ktb.community.exception.custom.UserNotFoundException;
@@ -36,14 +35,14 @@ public class LikeService {
     }
 
     @Transactional
-    public LikeResponseDto likePost(Long postId, String token) {
+    public LikeResponseDto likePost(Long postId, String email) {
         // TODO :  Redis도입하면 DB가아닌 Redis에서 관리하도록 변경하기
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Not found User"));
 
         // 연관된 유저와 게시글 찾기
         Post post = this.postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Not found Post"));
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Not found User"));
-        LikePK pk = new LikePK(userId, postId);
+        LikePK pk = new LikePK(user.getId(), postId);
 
         Like like = this.likeRepository.findById(pk).orElse(null);
 
@@ -70,10 +69,11 @@ public class LikeService {
     }
 
     @Transactional
-    public LikeResponseDto unLikePost(Long postId, String token) {
+    public LikeResponseDto unLikePost(Long postId, String email) {
         // TODO :  Redis도입하면 DB가아닌 Redis에서 관리하도록 변경하기
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
-        LikePK pk = new LikePK(userId, postId);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        LikePK pk = new LikePK(user.getId(), postId);
         Like like = this.likeRepository.findById(pk).orElseThrow(() -> new NotExistLikeException("Not exist like"));
 
         Count count = countRepository.findByPostId(postId).orElseThrow(() -> new PostNotFoundException("Not found post"));

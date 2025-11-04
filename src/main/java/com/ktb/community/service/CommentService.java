@@ -41,23 +41,19 @@ public class CommentService {
     }
 
 
-    public CursorCommentResponseDto<CommentResponseDto> getCommentList(Long postId, Long cursor, int size, String token) {
-        log.info("===== 댓글 목록 조회 요청 =====");
-        log.info("postId: {}, cursor: {}, size: {}", postId, cursor, size);
+    public CursorCommentResponseDto<CommentResponseDto> getCommentList(Long postId, Long cursor, int size, String email) {
 
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
-        log.info("요청 userId: {}", userId);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         List<Comment> comments;
         Pageable pageable = PageRequest.of(0, size + 1);
 
         if (cursor == null) {
             // cursor가 null이라면 첫 댓글 리스트 불러오기
-            log.info("첫 댓글 목록 조회");
             comments = this.commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(postId, pageable);
         } else {
             // cursor가 존재한다면 cursor를 기반으로 다음 댓글드 불러오기
-            log.info("cursor 기반 다음 댓글 조회");
             comments = this.commentRepository.findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(postId, cursor, pageable);
         }
 
@@ -72,31 +68,20 @@ public class CommentService {
                         .author(comment.getUser().getNickname())
                         .content(comment.getContent())
                         .createdAt(comment.getCreatedAt())
-                        .isMine(comment.getUser().getId().equals(userId)) // 인증이 추가되면 로직 변경하기
+                        .isMine(comment.getUser().getId().equals(user.getId()))
                         .build())
                 .toList();
 
         Long nextCursor = !commentList.isEmpty() ? commentList.getLast().getId() : null;
 
-        log.info("조회된 댓글 수: {}", commentList.size());
-        log.info("===== 댓글 내용 =====");
-        commentList.forEach(comment ->
-            log.info("댓글 ID: {}, 작성자: {}, 내용: {}, 작성일: {}, 내댓글: {}",
-                    comment.getId(), comment.getAuthor(), comment.getContent(),
-                    comment.getCreatedAt(), comment.isMine())
-        );
-        log.info("다음 커서: {}, 다음 페이지 존재: {}", nextCursor, hasNext);
-        log.info("======================");
-
         return new CursorCommentResponseDto<>(commentList, nextCursor, hasNext);
     }
 
     @Transactional
-    public CrudCommentResponseDto writeComment(Long postId, String token, CreateCommentRequestDto createCommentRequestDto) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto writeComment(Long postId, String email, CreateCommentRequestDto createCommentRequestDto) {
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Not found post"));
-        User user = this.userRepository.findById(userId)
+        User user = this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Not found user"));
 
         Comment comment = new Comment();
@@ -110,13 +95,14 @@ public class CommentService {
     }
 
     @Transactional
-    public CrudCommentResponseDto modifyComment(String token, UpdateCommentRequestDto updateCommentRequestDto) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto modifyComment(String email, UpdateCommentRequestDto updateCommentRequestDto) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         // 작성자가 맞는지부터확인
         Comment comment = this.commentRepository.findById(updateCommentRequestDto.getCommentId())
                 .orElseThrow(() -> new CommentNotFoundException("Not found comment"));
 
-        if (!userId.equals(comment.getUser().getId())) {
+        if (!user.getId().equals(comment.getUser().getId())) {
             throw new UnauthorizedException("You are not authorized to modify this comment");
         }
 
@@ -126,12 +112,13 @@ public class CommentService {
     }
 
     @Transactional
-    public CrudCommentResponseDto removeComment(Long commentId, String token) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudCommentResponseDto removeComment(Long commentId, String email) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Comment comment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Not found comment"));
 
-        if (!userId.equals(comment.getUser().getId())) {
+        if (!user.getId().equals(comment.getUser().getId())) {
             throw new UnauthorizedException("You are not authorized to delete this comment");
         }
 

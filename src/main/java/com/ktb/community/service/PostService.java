@@ -110,8 +110,9 @@ public class PostService {
         return new CursorPageResponseDto<>(postContent, nextCursor, hasNext);
     }
 
-    public PostDetailResponseDto getPostContent(Long postId, String token) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public PostDetailResponseDto getPostContent(Long postId, String email) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Post post = this.postRepository.findByWithUser(postId).orElseThrow(() -> new PostNotFoundException("Not found post"));
 
@@ -126,7 +127,7 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .author(post.getUser().getNickname())
-                .isMine(userId.equals(post.getUser().getId()))
+                .isMine(user.getId().equals(post.getUser().getId()))
                 .images(images)
                 .createdAt(post.getCreatedAt())
                 .views(count != null ? count.getViewCount() : 0L)
@@ -137,15 +138,15 @@ public class PostService {
 
 
     @Transactional
-    public CrudPostResponseDto modifyPostContent(Long postId, String token, ModifyPostRequestDto modifyPostRequestDto) {
-        // JWT에서 userId 추출
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudPostResponseDto modifyPostContent(Long postId, String email, ModifyPostRequestDto modifyPostRequestDto) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found"));
 
         // 작성자 확인
-        if (!userId.equals(post.getUser().getId())) {
+        if (!user.getId().equals(post.getUser().getId())) {
             throw new UnauthorizedException("You are not authorized to modify this post");
         }
 
@@ -167,11 +168,12 @@ public class PostService {
     }
 
     @Transactional
-    public CrudPostResponseDto removePost(Long postId, String token) {
-        Long userId = this.jwtUtil.extractUserIdFromToken(token);
+    public CrudPostResponseDto removePost(Long postId, String email) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found"));
-        if (!userId.equals(post.getUser().getId())) {
+        if (!user.getId().equals(post.getUser().getId())) {
             throw new UnauthorizedException("You are not authorized to delete this post");
         }
 
