@@ -1,8 +1,7 @@
 package com.ktb.community.jwt;
 
 
-import com.ktb.community.dto.request.LoginRequestDto;
-import com.ktb.community.entity.Refresh;
+import com.ktb.community.exception.custom.InvalidRefreshTokenException;
 import com.ktb.community.repository.RefreshRepository;
 import com.ktb.community.repository.UserRepository;
 import io.jsonwebtoken.*;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
@@ -62,7 +60,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractEmailFromToken(String token) {
+    public String getEmailFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(this.key)
                 .build()
@@ -72,24 +70,26 @@ public class JwtUtil {
         return claims.get("email", String.class);
     }
 
-    public boolean validateToken(String token) {
+    public Jws<Claims> parse(String token) {
         try {
-            Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(this.key)
                     .build()
                     .parseClaimsJws(token);
-            return true;
+
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token : ", e);
+            throw new InvalidRefreshTokenException("Invalid JWT Token");
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token : ", e);
+            throw new InvalidRefreshTokenException("Expired JWT Token");
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
+            throw new InvalidRefreshTokenException("Unsupported JWT Token");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty", e);
+            throw new InvalidRefreshTokenException("JWT claims string is empty");
         }
-
-        return false;
     }
 
     public LocalDateTime getExpirationFromToken(String token) {
@@ -103,7 +103,7 @@ public class JwtUtil {
         return expiration.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
-    public Long extractUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token).getBody();
         return Long.parseLong(claims.getSubject());
     }

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReIssueRefreshTokenDto {
+    @JsonProperty("access_token")
+    public String accessToken;
     @JsonProperty("refresh_token")
     public String refreshToken;
 }
