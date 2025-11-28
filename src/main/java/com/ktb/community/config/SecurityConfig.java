@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 무상태로 저장 JWT를 사용하므로 세션을 서버에 저장 X
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/**", "/users/check-email", "/health", "/css/**", "/js/**","/favicon.ico").permitAll()
+                        auth.requestMatchers("/auth/**", "/users/check-email", "/health", "/css/**", "/js/**", "/favicon.ico").permitAll()
                                 .anyRequest().authenticated()
                 )// URL별로 인가 정책을 결정
                 // /auth/나 /user/check-email은 인증 X
@@ -57,7 +57,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 허용할 Origin (프론트엔드 주소)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://kwakmanbo.store"));
 
         // 허용할 HTTP 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
