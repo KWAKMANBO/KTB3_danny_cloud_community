@@ -1,0 +1,10 @@
+services:
+  community-be:
+    image: community-be-multi
+    container_name: community-be
+    restart: always
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - .env
