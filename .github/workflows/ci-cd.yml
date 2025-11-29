@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - integrate
+      - ci/cd-test
   pull_request:
     branches:
       - main
       - integrate
+      - ci/cd-test
 
 permissions:
   contents: read
@@ -32,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Gradle Test
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v4
         with:
           arguments: clean test
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
