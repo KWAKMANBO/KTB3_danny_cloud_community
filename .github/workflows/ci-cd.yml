@@ -74,32 +74,32 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:latest .
           docker push $REGISTRY/$REPOSITORY:latest
 
-#      - name: Configure AWS Credentials For Deploy
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-#          aws-region: ap-northeast-2
-#
-#      - name: Install AWS CLI if not installed
-#        run: |
-#          if ! command -v aws &> /dev/null
-#          then
-#            echo "AWS CLI not found. Installing..."
-#            sudo apt-get update
-#            sudo apt-get install -y awscli
-#          else
-#            echo "AWS CLI already installed."
-#          fi
-#
-#      - name: Install jq if not installed
-#        run: |
-#          if ! command -v jq
-#
-#      - name: Deploy FE EC2 via SSM
-#        run: |
-#          aws ssm send-command \
-#            --document-name "AWS-RunShellScript" \
-#            --instance-ids ${{ secrets.AWS_INSTANCE_ID }} \
-#            --parameters "{\"commands\": [\"cd /home\", \"bash /home/deploy.sh ${{ secrets.AWS_REPOSITORY_ALIAS }} ${{ secrets.AWS_REPOSITORY }} latest\"]}" \
-#            --region ap-northeast-2
+      - name: Configure AWS Credentials For Deploy
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Install AWS CLI if not installed
+        run: |
+          if ! command -v aws &> /dev/null
+          then
+            echo "AWS CLI not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y awscli
+          else
+            echo "AWS CLI already installed."
+          fi
+
+      - name: Install jq if not installed
+        run: |
+          if ! command -v jq
+
+      - name: Deploy FE EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids ${{ secrets.AWS_INSTANCE_ID }} \
+            --parameters "{\"commands\": [\"cd /home\", \"bash /home/deploy.sh ${{ secrets.AWS_REPOSITORY_ALIAS }} ${{ secrets.AWS_REPOSITORY }} latest\"]}" \
+            --region ap-northeast-2
