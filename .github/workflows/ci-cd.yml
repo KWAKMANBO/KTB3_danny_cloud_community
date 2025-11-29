@@ -34,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Gradle Test
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: clean test
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
