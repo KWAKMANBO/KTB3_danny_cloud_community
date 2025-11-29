@@ -40,40 +40,40 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
 
-#  build-and-push-image-to-ecr:
-#    needs: fe-test
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main'
-#
-#
-#    steps:
-#      - name: Get fe Enviorment
-#        uses: actions/checkout@v5
-#
-#      - name: Configure AWS Credentials For build
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-#          aws-region: us-east-1
-#
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v2
-#        with:
-#          registry-type: public
-#
-#      - name: Build, tag and push image to Aamazon ECR Public Registry
-#        id: build-image
-#        env:
-#          REGISTRY: public.ecr.aws/${{ secrets.AWS_REPOSITORY_ALIAS }}
-#          REPOSITORY: ${{ secrets.AWS_REPOSITORY }}
-#          IMAGE_TAG: ${{ github.sha }}
-#        run: |
-#          pwd
-#          docker build -t $REGISTRY/$REPOSITORY:latest .
-#          docker push $REGISTRY/$REPOSITORY:latest
-#
+build-and-push-image-to-ecr:
+    needs: be-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+
+    steps:
+      - name: Get fe Enviorment
+        uses: actions/checkout@v5
+
+      - name: Configure AWS Credentials For build
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag and push image to Aamazon ECR Public Registry
+        id: build-image
+        env:
+          REGISTRY: public.ecr.aws/${{ secrets.AWS_REPOSITORY_ALIAS }}
+          REPOSITORY: ${{ secrets.AWS_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          pwd
+          docker build -t $REGISTRY/$REPOSITORY:latest .
+          docker push $REGISTRY/$REPOSITORY:latest
+
 #      - name: Configure AWS Credentials For Deploy
 #        uses: aws-actions/configure-aws-credentials@v4
 #        with:
