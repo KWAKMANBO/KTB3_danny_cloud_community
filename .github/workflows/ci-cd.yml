@@ -94,7 +94,11 @@ jobs:
 
       - name: Install jq if not installed
         run: |
-          if ! command -v jq
+          if ! command -v jq &> /dev/null; then
+            echo "jq not found, installing..."
+            sudo apt-get update -y
+            sudo apt-get install jq -y
+          fi
 
       - name: Deploy FE EC2 via SSM
         run: |
