@@ -1,0 +1,101 @@
+name: Kwakmanbo Community CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  be-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Gradle Test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean test
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+
+#  build-and-push-image-to-ecr:
+#    needs: fe-test
+#    runs-on: ubuntu-latest
+#    if: github.ref == 'refs/heads/main'
+#
+#
+#    steps:
+#      - name: Get fe Enviorment
+#        uses: actions/checkout@v5
+#
+#      - name: Configure AWS Credentials For build
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: us-east-1
+#
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v2
+#        with:
+#          registry-type: public
+#
+#      - name: Build, tag and push image to Aamazon ECR Public Registry
+#        id: build-image
+#        env:
+#          REGISTRY: public.ecr.aws/${{ secrets.AWS_REPOSITORY_ALIAS }}
+#          REPOSITORY: ${{ secrets.AWS_REPOSITORY }}
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          pwd
+#          docker build -t $REGISTRY/$REPOSITORY:latest .
+#          docker push $REGISTRY/$REPOSITORY:latest
+#
+#      - name: Configure AWS Credentials For Deploy
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: ap-northeast-2
+#
+#      - name: Install AWS CLI if not installed
+#        run: |
+#          if ! command -v aws &> /dev/null
+#          then
+#            echo "AWS CLI not found. Installing..."
+#            sudo apt-get update
+#            sudo apt-get install -y awscli
+#          else
+#            echo "AWS CLI already installed."
+#          fi
+#
+#      - name: Install jq if not installed
+#        run: |
+#          if ! command -v jq
+#
+#      - name: Deploy FE EC2 via SSM
+#        run: |
+#          aws ssm send-command \
+#            --document-name "AWS-RunShellScript" \
+#            --instance-ids ${{ secrets.AWS_INSTANCE_ID }} \
+#            --parameters "{\"commands\": [\"cd /home\", \"bash /home/deploy.sh ${{ secrets.AWS_REPOSITORY_ALIAS }} ${{ secrets.AWS_REPOSITORY }} latest\"]}" \
+#            --region ap-northeast-2
