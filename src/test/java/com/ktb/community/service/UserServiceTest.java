@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +51,8 @@ public class UserServiceTest {
     private JwtUtil jwtUtil;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private ImageService imageService;
 
     @InjectMocks
     private UserService userService;
@@ -176,13 +179,14 @@ public class UserServiceTest {
     class ReadMyInfoTest {
 
         @Test
-        @DisplayName("내 정보 조회 성공")
-        void readMyInfo_Success() {
+        @DisplayName("내 정보 조회 성공 (프로필 이미지 없음)")
+        void readMyInfo_Success_NoProfileImage() {
             // given
             String email = "test@example.com";
             User user = new User();
             user.setEmail(email);
             user.setNickname("testuser");
+            user.setProfileImage(null);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
@@ -192,7 +196,36 @@ public class UserServiceTest {
             // then
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getNickname()).isEqualTo("testuser");
+            assertThat(result.getProfileImageUrl()).isNull();
             verify(userRepository).findByEmail(email);
+            verify(imageService, never()).generateDownloadUrls(anyList());
+        }
+
+        @Test
+        @DisplayName("내 정보 조회 성공 (프로필 이미지 있음)")
+        void readMyInfo_Success_WithProfileImage() {
+            // given
+            String email = "test@example.com";
+            String profileImageUrl = "https://bucket.s3.amazonaws.com/images/PROFILE/1/image.jpg";
+            String presignedUrl = "https://bucket.s3.amazonaws.com/images/PROFILE/1/image.jpg?X-Amz-...";
+
+            User user = new User();
+            user.setEmail(email);
+            user.setNickname("testuser");
+            user.setProfileImage(profileImageUrl);
+
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(imageService.generateDownloadUrls(anyList())).thenReturn(List.of(presignedUrl));
+
+            // when
+            UserInfoResponseDto result = userService.readMyInfo(email);
+
+            // then
+            assertThat(result.getEmail()).isEqualTo(email);
+            assertThat(result.getNickname()).isEqualTo("testuser");
+            assertThat(result.getProfileImageUrl()).isEqualTo(presignedUrl);
+            verify(userRepository).findByEmail(email);
+            verify(imageService).generateDownloadUrls(anyList());
         }
 
         @Test

@@ -47,6 +47,10 @@ public class PostServiceTest {
     private UserRepository userRepository;
     @Mock
     private JwtUtil jwtUtil;
+    @Mock
+    private ImageService imageService;
+    @Mock
+    private LikeService likeService;
 
     @InjectMocks
     private PostService postService;
@@ -123,7 +127,6 @@ public class PostServiceTest {
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(postRepository.save(any(Post.class))).thenReturn(savedPost);
             when(countRepository.save(any(Count.class))).thenReturn(new Count());
-            when(imageRepository.saveAll(anyList())).thenReturn(List.of());
 
             // when
             CrudPostResponseDto result = postService.createPost(requestDto, email);
@@ -132,7 +135,7 @@ public class PostServiceTest {
             assertThat(result.getPostId()).isEqualTo(1L);
             verify(userRepository).findByEmail(email);
             verify(postRepository).save(any(Post.class));
-            verify(imageRepository).saveAll(anyList());
+            verify(imageService).confirmPostImagesUpload(anyList(), any(Post.class));
             verify(countRepository).save(any(Count.class));
         }
 
@@ -165,6 +168,7 @@ public class PostServiceTest {
             // given
             Long cursor = null;
             int size = 2;
+            String email = "test@example.com";
 
             User user = new User();
             user.setId(1L);
@@ -179,18 +183,20 @@ public class PostServiceTest {
             Count count1 = createCount(1L, 10L, 5L, 2L);
             Count count2 = createCount(2L, 20L, 10L, 3L);
 
+            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(1L)).thenReturn(Optional.of(count1));
             when(countRepository.findByPostId(2L)).thenReturn(Optional.of(count2));
 
             // when
-            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size);
+            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
 
             // then
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isTrue();
             assertThat(result.getNextCursor()).isEqualTo(2L);
+            //verify(userRepository).findByEmail(email);
             verify(postRepository).findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class));
         }
 
@@ -200,6 +206,7 @@ public class PostServiceTest {
             // given
             Long cursor = 10L;
             int size = 2;
+            String email = "test@example.com";
 
             User user = new User();
             user.setId(1L);
@@ -213,17 +220,19 @@ public class PostServiceTest {
             Count count1 = createCount(8L, 5L, 3L, 1L);
             Count count2 = createCount(9L, 8L, 4L, 2L);
 
+            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(postRepository.findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(8L)).thenReturn(Optional.of(count1));
             when(countRepository.findByPostId(9L)).thenReturn(Optional.of(count2));
 
             // when
-            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size);
+            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
 
             // then
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
+            //verify(userRepository).findByEmail(email);
             verify(postRepository).findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class));
         }
 
@@ -233,6 +242,7 @@ public class PostServiceTest {
             // given
             Long cursor = null;
             int size = 5;
+            String email = "test@example.com";
 
             User user = new User();
             user.setId(1L);
@@ -243,16 +253,18 @@ public class PostServiceTest {
 
             List<Post> posts = Arrays.asList(post1, post2);
 
+            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(anyLong())).thenReturn(Optional.empty());
 
             // when
-            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size);
+            CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
 
             // then
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
+            //verify(userRepository).findByEmail(email);
         }
     }
 
