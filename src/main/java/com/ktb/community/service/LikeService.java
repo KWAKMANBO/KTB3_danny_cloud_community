@@ -24,6 +24,7 @@ public class LikeService {
     private final PostRepository postRepository;
     private final CountRepository countRepository;
 
+
     @Autowired
     public LikeService(JwtUtil jwtUtil, LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, CountRepository countRepository) {
         this.jwtUtil = jwtUtil;
@@ -81,5 +82,15 @@ public class LikeService {
         count.setLikeCount(count.getLikeCount() - 1);
 
         return new LikeResponseDto(postId, false);
+    }
+
+    @Transactional
+    public boolean checkLike(Long postId, String email) {
+        // TODO :  Redis도입하면 DB가아닌 Redis에서 관리하도록 변경하기
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        LikePK pk = new LikePK(user.getId(), postId);
+
+        return this.likeRepository.existsByIdAndDeletedAtIsNull(pk);
     }
 }

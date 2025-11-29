@@ -36,9 +36,10 @@ public class UserService {
     private final RefreshRepository refreshRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, CountRepository countRepository, ImageRepository imageRepository, LikeRepository likeRepository, RefreshRepository refreshRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, CountRepository countRepository, ImageRepository imageRepository, LikeRepository likeRepository, RefreshRepository refreshRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, ImageService imageService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
@@ -48,6 +49,7 @@ public class UserService {
         this.refreshRepository = refreshRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.imageService = imageService;
     }
 
     public AvailabilityResponseDto checkDuplicateEmail(String email) {
@@ -63,7 +65,15 @@ public class UserService {
 
     public UserInfoResponseDto readMyInfo(String email) {
         User user = this.userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Not found user."));
-        return new UserInfoResponseDto(user.getEmail(), user.getNickname());
+
+        // Private 버킷: Presigned Download URL 생성
+        String profileImageUrl = null;
+        if (user.getProfileImage() != null) {
+            List<String> urls = imageService.generateDownloadUrls(List.of(user.getProfileImage()));
+            profileImageUrl = urls.isEmpty() ? null : urls.get(0);
+        }
+
+        return new UserInfoResponseDto(user.getEmail(), user.getNickname(), profileImageUrl);
     }
 
     @Transactional
@@ -107,6 +117,38 @@ public class UserService {
 
         // 비밀번호 변경
         user.setPassword(passwordEncoder.encode(changePasswordRequestDto.getNewPassword()));
+        return new CrudUserResponseDto(user.getId());
+    }
+
+    @Transactional
+    public CrudUserResponseDto updateProfileImage(String email, String imageKey) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // 기존 프로필 이미지 삭제 (S3)
+//        if (user.getProfileImage() != null) {
+//            imageService.deleteProfileImage(user.getId());
+//        }
+
+        // 새 프로필 이미지 확인 및 저장
+//        String imageUrl = imageService.confirmProfileImageUpload(imageKey, user);
+        String imageUrl = imageService.confirmProfileImageUpload(imageKey);
+        user.setProfileImage(imageUrl);
+
+        return new CrudUserResponseDto(user.getId());
+    }
+
+    @Transactional
+    public CrudUserResponseDto deleteProfileImage(String email) {
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // S3에서 프로필 이미지 삭제
+//        if (user.getProfileImage() != null) {
+//            imageService.deleteProfileImage(user.getId());
+//            user.setProfileImage(null);
+//        }
+
         return new CrudUserResponseDto(user.getId());
     }
 

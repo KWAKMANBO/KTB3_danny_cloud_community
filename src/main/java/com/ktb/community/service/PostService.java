@@ -28,15 +28,19 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final ImageService imageService;
+    private final LikeService likeService;
 
     @Autowired
-    public PostService(PostRepository postRepository, CountRepository countRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public PostService(PostRepository postRepository, CountRepository countRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository, JwtUtil jwtUtil, ImageService imageService, LikeService likeService) {
         this.postRepository = postRepository;
         this.countRepository = countRepository;
         this.imageRepository = imageRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.imageService = imageService;
+        this.likeService = likeService;
     }
 
     @Transactional
@@ -49,17 +53,9 @@ public class PostService {
 
         Post savedPost = this.postRepository.save(post);
 
-        if (!createPostRequestDto.getImages().isEmpty()) {
-            List<String> imageUrls = createPostRequestDto.getImages();
-            List<Image> images = new ArrayList<>();
-            for (int i = 0; i < createPostRequestDto.getImages().size(); i++) {
-                Image img = new Image();
-                img.setUrl(imageUrls.get(i));
-                img.setPost(savedPost);
-                img.setDisplayOrder(i);
-                images.add(img);
-            }
-            this.imageRepository.saveAll(images);
+        // imageKeys를 사용하여 S3 검증 후 DB 저장
+        if (createPostRequestDto.getImageKeys() != null && !createPostRequestDto.getImageKeys().isEmpty()) {
+            imageService.confirmPostImagesUpload(createPostRequestDto.getImageKeys(), savedPost);
         }
 
         Count count = new Count();
@@ -72,7 +68,8 @@ public class PostService {
         return new CrudPostResponseDto(savedPost.getId());
     }
 
-    public CursorPageResponseDto<PostResponseDto> getPostList(Long cursor, int size) {
+    @Transactional
+    public CursorPageResponseDto<PostResponseDto> getPostList(Long cursor, int size, String email) {
         Pageable pageable = PageRequest.of(0, size + 1);
 
         List<Post> posts;
@@ -93,13 +90,15 @@ public class PostService {
         List<PostResponseDto> postContent = posts.stream()
                 .map(post -> {
                     Count count = this.countRepository.findByPostId(post.getId()).orElse(null);
-
+                    boolean isLiked = likeService.checkLike(post.getId(), email);
                     return PostResponseDto.builder()
                             .id(post.getId())
                             .title(post.getTitle())
                             .content(post.getContent())
                             .author(post.getUser().getNickname())
+                            .profileImage(post.getUser().getProfileImage())
                             .createdAt(post.getCreatedAt())
+                            .isLiked(isLiked)
                             .views(count != null ? count.getViewCount() : 0L)
                             .likes(count != null ? count.getLikeCount() : 0L)
                             .comments(count != null ? count.getCommentCount() : 0L)
@@ -116,20 +115,25 @@ public class PostService {
 
         Post post = this.postRepository.findByWithUser(postId).orElseThrow(() -> new PostNotFoundException("Not found post"));
 
-        List<String> images = this.imageRepository.findByPostIdAndDeletedAtIsNullOrderByDisplayOrderAsc(post.getId())
+        List<String> imageUrls = this.imageRepository.findByPostIdAndDeletedAtIsNullOrderByDisplayOrderAsc(post.getId())
                 .stream()
                 .map(Image::getUrl)
                 .toList();
 
+        // Private 버킷: Presigned Download URL 생성
+        List<String> presignedDownloadUrls = imageService.generateDownloadUrls(imageUrls);
+
         Count count = this.countRepository.findByPostId(post.getId()).orElse(null);
+        boolean isLiked = this.likeService.checkLike(postId, email);
         return PostDetailResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .author(post.getUser().getNickname())
                 .isMine(user.getId().equals(post.getUser().getId()))
-                .images(images)
+                .images(presignedDownloadUrls)  // Presigned URL 반환
                 .createdAt(post.getCreatedAt())
+                .isLiked(isLiked)
                 .views(count != null ? count.getViewCount() : 0L)
                 .likes(count != null ? count.getLikeCount() : 0L)
                 .comments(count != null ? count.getCommentCount() : 0L)
@@ -158,10 +162,16 @@ public class PostService {
             post.setContent(modifyPostRequestDto.getContent());
         }
 
-        // TODO : 이미지 변경 로직은 추후 추가하기
-        // if (modifyPostRequestDto.getImages() != null) {
-        //     // 이미지 업데이트 로직
-        // }
+        // 이미지 변경 로직
+        if (modifyPostRequestDto.getImageKeys() != null) {
+            // 기존 이미지 삭제 (S3 + DB)
+            imageService.deletePostImages(postId);
+
+            // 새 이미지 저장
+            if (!modifyPostRequestDto.getImageKeys().isEmpty()) {
+                imageService.confirmPostImagesUpload(modifyPostRequestDto.getImageKeys(), post);
+            }
+        }
 
         // @Transactional에 의해 자동으로 UPDATE 쿼리 실행 (Dirty Checking)
         return new CrudPostResponseDto(post.getId());
@@ -177,15 +187,15 @@ public class PostService {
             throw new UnauthorizedException("You are not authorized to delete this post");
         }
 
+        // S3에서 이미지 삭제
+        imageService.deletePostImages(postId);
+
         // post를 soft delete
         post.setDeletedAt(LocalDateTime.now());
 
         // 연관된 댓글들도 soft delete
         List<Comment> comments = this.commentRepository.findByPostId(postId);
         comments.forEach(comment -> comment.setDeletedAt(LocalDateTime.now()));
-
-        // TODO : 이미지 로직 추가되면 이미지 삭제로직 추가하기
-
 
         return new CrudPostResponseDto(postId);
     }

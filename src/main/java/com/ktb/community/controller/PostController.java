@@ -32,9 +32,11 @@ public class PostController {
     @GetMapping()
     public ResponseEntity<ApiResponseDto<CursorPageResponseDto<PostResponseDto>>> getPosts(
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
     ) {
-        CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size);
+        String email = authentication.getName();
+        CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
         return ResponseEntity.ok(ApiResponseDto.success(result));
     }
 

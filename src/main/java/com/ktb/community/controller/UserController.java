@@ -4,6 +4,7 @@ import com.ktb.community.dto.request.ChangePasswordRequestDto;
 import com.ktb.community.dto.request.EmailCheckRequestDto;
 import com.ktb.community.dto.request.ModifyNicknameRequestDto;
 import com.ktb.community.dto.request.PasswordCheckRequestDto;
+import com.ktb.community.dto.request.UpdateProfileImageRequestDto;
 import com.ktb.community.dto.response.ApiResponseDto;
 import com.ktb.community.dto.response.AvailabilityResponseDto;
 import com.ktb.community.dto.response.CrudUserResponseDto;
@@ -100,5 +101,24 @@ public class UserController {
         //TODO : 삭제 로직 구현하기
         this.userService.removeUser(email);
         return ResponseEntity.ok().body(ApiResponseDto.success("test중"));
+    }
+
+    @PatchMapping("/profile-image")
+    public ResponseEntity<ApiResponseDto<CrudUserResponseDto>> updateProfileImage(
+            @RequestBody @Valid UpdateProfileImageRequestDto dto,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        CrudUserResponseDto response = userService.updateProfileImage(email, dto.getImageKey());
+        return ResponseEntity.ok(ApiResponseDto.success(response));
+    }
+
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<ApiResponseDto<CrudUserResponseDto>> deleteProfileImage(
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        CrudUserResponseDto response = userService.deleteProfileImage(email);
+        return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }
