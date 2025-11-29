@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - integrate
+#      - integrate
   pull_request:
     branches:
       - main
-      - integrate
+#      - integrate
 
 permissions:
   contents: read

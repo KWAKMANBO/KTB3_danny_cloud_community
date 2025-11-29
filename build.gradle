@@ -55,6 +55,10 @@ dependencies {
     // 테스트에 필요한 Mock 객체 생성을 위한 라이브러리
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
+
+    // AWS SDK v2 for S3
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
