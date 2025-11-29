@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,18 +17,21 @@ import java.util.List;
 public class ModifyPostRequestDto {
     @Nullable
     public String title;
+
     @Nullable
     public String content;
+
     @Nullable
-    List<String> images = new ArrayList<>();
+    @Size(max = 10, message = "이미지는 최대 10개까지 업로드 가능합니다.")
+    List<String> imageKeys = new ArrayList<>();
 
     @JsonCreator
     public ModifyPostRequestDto(
             @JsonProperty("title") String title,
             @JsonProperty("content") String content,
-            @JsonProperty("images") List<String> images) {
+            @JsonProperty("imageKeys") List<String> imageKeys) {
         this.title = title;
         this.content = content;
-        this.images = images != null ? images : new ArrayList<>();
+        this.imageKeys = imageKeys != null ? imageKeys : new ArrayList<>();
     }
 }

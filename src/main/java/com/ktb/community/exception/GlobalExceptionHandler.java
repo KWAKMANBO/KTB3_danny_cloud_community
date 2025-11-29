@@ -119,6 +119,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponseDto.error(e.getMessage()));
     }
 
+    @ExceptionHandler(InvalidImageKeyException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleInvalidImageKeyException(InvalidImageKeyException e) {
+        System.err.println("[InvalidImageKeyException] " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDto.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleImageNotFoundException(ImageNotFoundException e) {
+        System.err.println("[ImageNotFoundException] " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponseDto.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleInvalidFileTypeException(InvalidFileTypeException e) {
+        System.err.println("[InvalidFileTypeException] " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDto.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleRateLimitExceededException(RateLimitExceededException e) {
+        System.err.println("[RateLimitExceededException] " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponseDto.error(e.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDto<?>> handleGeneralException(Exception e) {
         System.err.println("=== Unexpected Exception Occurred ===");

@@ -23,4 +23,8 @@ public class PostResponseDto {
     private Long likes;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    @JsonProperty("profile_image")
+    private String profileImage;
+    @JsonProperty("is_liked")
+    private boolean isLiked;
 }
