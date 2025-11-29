@@ -40,7 +40,7 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
 
-build-and-push-image-to-ecr:
+  build-and-push-image-to-ecr:
     needs: be-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
