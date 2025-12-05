@@ -38,4 +38,9 @@ public class RedisSingleDataServiceImpl implements RedisSingleDataService {
     public int deleteSingleData(String key) {
         return redisHandler.executeOperation(() -> redisConfig.redisTemplate().delete(key));
     }
+
+    public String checkRedisConnection() {
+        setSingleData("connection_test", "OK");
+        return getSingleData("connection_test");
+    }
 }
