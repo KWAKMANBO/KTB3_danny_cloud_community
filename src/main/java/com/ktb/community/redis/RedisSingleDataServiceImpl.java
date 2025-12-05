@@ -40,7 +40,23 @@ public class RedisSingleDataServiceImpl implements RedisSingleDataService {
     }
 
     public String checkRedisConnection() {
-        setSingleData("connection_test", "OK");
-        return getSingleData("connection_test");
+        try {
+            System.out.println("hello");
+            String testKey = "connection_test";
+            String testValue = "OK";
+
+            redisConfig.redisTemplate().opsForValue().set(testKey, testValue);
+            Object result = redisConfig.redisTemplate().opsForValue().get(testKey);
+            redisConfig.redisTemplate().delete(testKey);
+
+            if (testValue.equals(String.valueOf(result))) {
+                return "Redis connection successful: " + result;
+            } else {
+                return "Redis connection issue: expected " + testValue + " but got " + result;
+            }
+        } catch (Exception e) {
+            return "Redis connection failed: " + e.getMessage();
+        }
     }
+
 }
