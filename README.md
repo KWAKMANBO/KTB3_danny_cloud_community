@@ -13,63 +13,34 @@
 
 ## 📚 사용 기술
 
-- Java 21
-- Spring Boot 3.5.6
-- Spring Security
-- Spring Data JPA
-- QueryDSL 5.1.0
+- Java
+
 - Database
   - MySQL (RDS)
   - Redis (캐싱 및 세션 관리)
-- Authentication
-  - JWT (jjwt 0.11.5)
-  - Access Token (24시간)
-  - Refresh Token (14일)
-- File Storage
-  - AWS S3
-  - Presigned URL (15분)
+
 - Template Engine
   - Thymeleaf
-- Testing
-  - JUnit 5
-  - Mockito
-  - AssertJ
-- Build Tool
-  - Gradle
-- Utility Libraries
-  - Lombok
-  - Spring Dotenv
 
-Infrastructure
-
-- Containerization
-  - Docker (Multi-stage build)
-  - Docker Compose
-  - Base Image: Eclipse Temurin 21 (JDK/JRE)
+    
 - Cloud Platform (AWS)
   - ECR (Public Registry) - 컨테이너 이미지 저장소
   - EC2 - 애플리케이션 서버
   - S3 - 이미지 파일 저장
   - RDS (MySQL) - 데이터베이스
   - ElastiCache (Redis) - 캐싱
+
 - CI/CD
   - GitHub Actions
   - AWS Systems Manager (SSM) - 자동 배포
   - 자동화된 테스트 → 빌드 → 푸시 → 배포 파이프라인
 
-🏗️ 서버 구조
+## DB 구성
 
-Application Architecture (Layered Architecture)
+<img width="1405" height="578" alt="image" src="https://github.com/user-attachments/assets/5d9d9688-d9ba-48e1-b250-6b3e7483a293" />
 
-Controller Layer
-    ↓
-Service Layer
-    ↓
-Repository Layer (JPA + QueryDSL)
-    ↓
-Database (MySQL)
 
-주요 컴포넌트
+## 주요 컴포넌트
 
 1. Controller Layer
 - AuthController - 인증/인가
@@ -119,28 +90,12 @@ Database (MySQL)
 - S3Config - AWS S3 설정
 - SecurityConfig - 보안 설정
 
-API 구조
+## 트러블 슈팅
+작성중 ..
 
-- Base Path: /api
-- Context Path 기반 라우팅
+## 프로젝트 회고
 
-배포 아키텍처
+작성중..
 
-GitHub → GitHub Actions (CI/CD)
-   ↓
-   ├─ Test (JUnit)
-   ├─ Build (Docker Multi-stage)
-   ├─ Push to ECR Public
-   └─ Deploy to EC2 (via SSM)
-       ↓
-   EC2 Instance
-       ↓
-   ├─ MySQL (RDS)
-   ├─ Redis (ElastiCache)
-   └─ S3 (Image Storage)
-
-  포트 구성
-
-  - Application: 8080
 
 
