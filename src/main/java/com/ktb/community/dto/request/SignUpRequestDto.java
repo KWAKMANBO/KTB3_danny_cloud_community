@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.Length;
 public class SignUpRequestDto {
     @Email(message = "올바은 이메일형식을 입력해주세요.")
     @NotBlank(message = "이메일을 입력해주세요.")
-    @Length(min = 15, max= 50, message = "이메일 길이는 15~20자만 가능합니다.")
+    @Length(min = 10, max= 50, message = "이메일 길이는 15~20자만 가능합니다.")
     private String email;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")

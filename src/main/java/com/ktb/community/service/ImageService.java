@@ -144,6 +144,25 @@ public class ImageService {
     }
 
     /**
+     * 단일 게시글 이미지 키를 확인하고 URL 반환
+     *
+     * @param imageKey S3 이미지 키
+     * @return 전체 S3 URL
+     */
+    public String confirmSinglePostImageUpload(String imageKey) {
+        // S3에 파일 존재 여부 확인
+        if (!s3Service.doesObjectExist(imageKey)) {
+            throw new ImageNotFoundException(
+                    "S3에서 이미지를 찾을 수 없습니다: " + imageKey +
+                    ". 업로드가 완료되었는지 확인해주세요."
+            );
+        }
+
+        // 전체 URL 생성
+        return s3Service.constructUrlFromKey(imageKey);
+    }
+
+    /**
      * 게시글 이미지 S3/DB 삭제
      *
      * @param postId 게시글 ID
@@ -168,6 +187,38 @@ public class ImageService {
 
             // DB에서 soft delete
             image.setDeletedAt(LocalDateTime.now());
+        }
+    }
+
+    /**
+     * 특정 이미지 ID 리스트로 이미지 삭제 (S3/DB)
+     *
+     * @param imageIds 삭제할 이미지 ID 리스트
+     */
+    @Transactional
+    public void deleteImagesByIds(List<Long> imageIds) {
+        if (imageIds == null || imageIds.isEmpty()) {
+            return;
+        }
+
+        for (Long imageId : imageIds) {
+            Image image = imageRepository.findById(imageId).orElse(null);
+
+            if (image != null && image.getDeletedAt() == null) {
+                // S3에서 삭제
+                String imageKey = s3Service.extractKeyFromUrl(image.getUrl());
+                if (imageKey != null) {
+                    try {
+                        // DB에서 soft delete
+                        image.setDeletedAt(LocalDateTime.now());
+//                        s3Service.deleteObject(imageKey);
+                    } catch (Exception e) {
+                        System.err.println("이미지 삭제 실패: " + imageKey + " - " + e.getMessage());
+                    }
+                }
+
+                
+            }
         }
     }
 

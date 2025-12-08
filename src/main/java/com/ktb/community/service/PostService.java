@@ -141,7 +141,7 @@ public class PostService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = false)
     public CrudPostResponseDto modifyPostContent(Long postId, String email, ModifyPostRequestDto modifyPostRequestDto) {
         User user = this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -162,7 +162,7 @@ public class PostService {
             post.setContent(modifyPostRequestDto.getContent());
         }
 
-        // 이미지 변경 로직
+        // 이미지 변경 로직 - 하위 호환성을 위한 기존 방식 (전체 교체)
         if (modifyPostRequestDto.getImageKeys() != null) {
             // 기존 이미지 삭제 (S3 + DB)
             imageService.deletePostImages(postId);
@@ -170,6 +170,89 @@ public class PostService {
             // 새 이미지 저장
             if (!modifyPostRequestDto.getImageKeys().isEmpty()) {
                 imageService.confirmPostImagesUpload(modifyPostRequestDto.getImageKeys(), post);
+            }
+        }
+        // 새로운 방식: 부분 추가/삭제
+        else {
+            // 1. 특정 이미지 삭제
+            if (modifyPostRequestDto.getDeleteImageIds() != null && !modifyPostRequestDto.getDeleteImageIds().isEmpty()) {
+                imageService.deleteImagesByIds(modifyPostRequestDto.getDeleteImageIds());
+            }
+
+            // 2. 새 이미지 추가
+            if (modifyPostRequestDto.getAddImageKeys() != null && !modifyPostRequestDto.getAddImageKeys().isEmpty()) {
+                System.out.println("=== 이미지 추가 시작 ===");
+                System.out.println("추가할 이미지 키: " + modifyPostRequestDto.getAddImageKeys());
+
+                // 현재 이미지 개수 확인
+                long currentImageCount = imageRepository.findByPostIdAndDeletedAtIsNull(postId).size();
+                long newImageCount = modifyPostRequestDto.getAddImageKeys().size();
+                long deleteImageCount = modifyPostRequestDto.getDeleteImageIds() != null
+                    ? modifyPostRequestDto.getDeleteImageIds().size() : 0;
+
+                System.out.println("현재 이미지 개수: " + currentImageCount);
+                System.out.println("추가할 개수: " + newImageCount);
+                System.out.println("삭제할 개수: " + deleteImageCount);
+
+                // 최종 이미지 개수 검증 (최대 10개)
+                long finalImageCount = currentImageCount - deleteImageCount + newImageCount;
+                if (finalImageCount > 10) {
+                    throw new IllegalArgumentException(
+                        String.format("이미지는 최대 10개까지만 가능합니다. (현재: %d, 삭제: %d, 추가: %d, 최종: %d)",
+                            currentImageCount, deleteImageCount, newImageCount, finalImageCount)
+                    );
+                }
+
+                // 새 이미지의 displayOrder는 기존 이미지 최대값 + 1부터 시작
+                List<Image> existingImages = imageRepository.findByPostIdAndDeletedAtIsNullOrderByDisplayOrderAsc(postId);
+                int nextDisplayOrder = existingImages.isEmpty() ? 0 :
+                    existingImages.stream()
+                        .mapToInt(Image::getDisplayOrder)
+                        .max()
+                        .orElse(-1) + 1;
+
+                System.out.println("다음 displayOrder: " + nextDisplayOrder);
+                System.out.println("Post ID: " + post.getId() + ", Post 영속 상태: " + (post != null));
+
+                List<Image> newImages = new ArrayList<>();
+                for (int i = 0; i < modifyPostRequestDto.getAddImageKeys().size(); i++) {
+                    String imageKey = modifyPostRequestDto.getAddImageKeys().get(i);
+                    System.out.println("처리 중인 이미지 키: " + imageKey);
+
+                    try {
+                        // S3에 파일 존재 여부 확인 및 URL 생성
+                        String fullUrl = imageService.confirmSinglePostImageUpload(imageKey);
+                        System.out.println("S3 URL 생성 성공: " + fullUrl);
+
+                        Image image = new Image();
+                        image.setUrl(fullUrl);
+                        image.setPost(post);
+                        image.setDisplayOrder(nextDisplayOrder + i);
+
+                        System.out.println("Image 생성: URL=" + image.getUrl() +
+                                         ", PostId=" + (image.getPost() != null ? image.getPost().getId() : "null") +
+                                         ", DisplayOrder=" + image.getDisplayOrder());
+
+                        newImages.add(image);
+                    } catch (Exception e) {
+                        System.err.println("이미지 처리 중 에러: " + e.getMessage());
+                        e.printStackTrace();
+                        throw e;
+                    }
+                }
+
+                System.out.println("저장할 이미지 개수: " + newImages.size());
+
+                // DB에 저장 (post와의 매핑 포함)
+                List<Image> savedImages = imageRepository.saveAll(newImages);
+                System.out.println("저장된 이미지 개수: " + savedImages.size());
+
+                for (Image img : savedImages) {
+                    System.out.println("저장된 이미지 ID: " + img.getId() +
+                                     ", Post ID: " + (img.getPost() != null ? img.getPost().getId() : "null"));
+                }
+
+                System.out.println("=== 이미지 추가 완료 ===");
             }
         }
 
