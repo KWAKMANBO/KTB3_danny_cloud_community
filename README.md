@@ -40,8 +40,8 @@
 <img width="1405" height="578" alt="image" src="https://github.com/user-attachments/assets/5d9d9688-d9ba-48e1-b250-6b3e7483a293" />
 
 ## 인프라 구성도
-<img width="500" height="600" alt="커뮤니티 배포 drawio (5)" src="https://github.com/user-attachments/assets/40e0b628-154f-449d-ae73-d80bc93a2283" />
 
+<img width="500" height="600" alt="커뮤니티 배포 drawio (7)" src="https://github.com/user-attachments/assets/efb96d0b-50bd-43b9-b6e8-618b9ff164b8" />
 
 ## 주요 컴포넌트
 
