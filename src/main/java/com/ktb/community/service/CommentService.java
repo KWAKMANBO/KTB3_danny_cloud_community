@@ -32,12 +32,14 @@ public class CommentService {
     PostRepository postRepository;
     UserRepository userRepository;
     JwtUtil jwtUtil;
+    com.ktb.community.repository.CountRepository countRepository;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository, JwtUtil jwtUtil, com.ktb.community.repository.CountRepository countRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.countRepository = countRepository;
     }
 
 
@@ -89,8 +91,13 @@ public class CommentService {
         comment.setPost(post);
         comment.setUser(user);
 
-
         Comment savedComment = this.commentRepository.save(comment);
+
+        // 댓글 개수 증가
+        com.ktb.community.entity.Count count = this.countRepository.findByPostId(postId)
+                .orElseThrow(() -> new PostNotFoundException("Not found post count"));
+        count.setCommentCount(count.getCommentCount() + 1);
+
         return new CrudCommentResponseDto(savedComment.getId());
     }
 
@@ -122,7 +129,14 @@ public class CommentService {
             throw new UnauthorizedException("You are not authorized to delete this comment");
         }
 
+        // soft delete
         comment.setDeletedAt(java.time.LocalDateTime.now());
+
+        // 댓글 개수 감소
+        com.ktb.community.entity.Count count = this.countRepository.findByPostId(comment.getPost().getId())
+                .orElseThrow(() -> new PostNotFoundException("Not found post count"));
+        count.setCommentCount(count.getCommentCount() - 1);
+
         // @Transactional에 의해 자동으로 UPDATE 쿼리 실행 (Dirty Checking)
 
         return new CrudCommentResponseDto(commentId);

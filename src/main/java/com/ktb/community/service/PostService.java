@@ -109,6 +109,7 @@ public class PostService {
         return new CursorPageResponseDto<>(postContent, nextCursor, hasNext);
     }
 
+    @Transactional
     public PostDetailResponseDto getPostContent(Long postId, String email) {
         User user = this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -124,6 +125,12 @@ public class PostService {
         List<String> presignedDownloadUrls = imageService.generateDownloadUrls(imageUrls);
 
         Count count = this.countRepository.findByPostId(post.getId()).orElse(null);
+
+        // 조회수 증가
+        if (count != null) {
+            count.setViewCount(count.getViewCount() + 1);
+        }
+
         boolean isLiked = this.likeService.checkLike(postId, email);
         return PostDetailResponseDto.builder()
                 .id(post.getId())
