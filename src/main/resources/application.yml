@@ -1,0 +1,44 @@
+server:
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ktb_community}?allowPublicKeyRetrieval=true&serverTimezone=UTC&useSSL=false
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # 개발 중에는 create / create-drop / update 중 선택
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  thymeleaf:
+    cache: false
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+  data:
+    redis:
+      host: 0.0.0.0 #${REDIS_HOST}
+      port : ${REDIS_PORT}
+jwt:
+  expiration:
+    access: 86400000
+    refresh: 1209600000
+  secret: ${JWT_SECRET}
+
+aws:
+  s3:
+    bucket-name: ${S3_BUCKET_NAME}
+    region: ${S3_REGION}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+    presigned-url-expiration: ${S3_PRESIGNED_URL_EXPIRATION:900}
+
+logging:
+  level:
+    org.hibernate.SQL: debug

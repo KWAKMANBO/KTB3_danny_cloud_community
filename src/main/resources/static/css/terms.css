@@ -1,0 +1,151 @@
+
+* {
+    background-color: #F4F5F7;
+}
+/* 이용약관 스타일 */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+
+main h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+main > p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+/* 토글 버튼 스타일 */
+.toggle-button {
+    display: block;
+    margin: 2rem auto;
+    padding: 12px 24px;
+    background-color: #aca0eb;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-button:hover {
+    background-color: #7e6aee;
+}
+
+/* 약관 내용 컨테이너 */
+.terms-content {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.terms-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* 약관 내용 스타일 */
+.terms-content h2 {
+    color: #333;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.terms-content p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.terms-content ul {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.terms-content li {
+    margin-bottom: 0.5rem;
+}
+
+.terms-content ul ul {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+}
+
+/* 구분선 스타일 */
+.separator {
+    height: 2px;
+    background: linear-gradient(to right, transparent, #ddd, transparent);
+    margin: 4rem 0;
+}
+
+/* 동의 섹션 스타일 */
+.consent-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.consent-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}
+
+.consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #aca0eb;
+}
+
+.consent-checkbox span {
+    user-select: none;
+}
+
+/* 동의 버튼 스타일 */
+.agree-button {
+    display: block;
+    width: 100%;
+    margin-top: 2rem;
+    padding: 16px 24px;
+    background-color: #aca0eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.agree-button:hover:not(:disabled) {
+    background-color: #7e6aee;
+    transform: translateY(-2px);
+}
+
+.agree-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.agree-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}

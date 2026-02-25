@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Gradle
+.gradle
+build
+!build/libs/*.jar
+
+# IDE
+.idea
+.vscode
+*.iml
+*.iws
+*.ipr
+
+# 로그 및 임시 파일
+*.log
+logs
+temp
+tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 환경 변수 및 설정
+.env
+.env.local
+application-local.yml
+application-dev.yml
+
+# 문서
+README.md
+docs
+
+# 테스트
+src/test
+
+# Node (프론트엔드가 있는 경우)
+node_modules
