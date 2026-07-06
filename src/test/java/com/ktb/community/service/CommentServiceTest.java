@@ -85,7 +85,7 @@ public class CommentServiceTest {
             List<Comment> comments = Arrays.asList(comment1, comment2, comment3);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), any(Pageable.class)))
+            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByIdDesc(eq(postId), any(Pageable.class)))
                     .thenReturn(comments);
 
             // when
@@ -96,7 +96,7 @@ public class CommentServiceTest {
             assertThat(result.getHasNext()).isTrue();
             assertThat(result.getNextCursor()).isEqualTo(2L);
             verify(userRepository).findByEmail(email);
-            verify(commentRepository).findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), any(Pageable.class));
+            verify(commentRepository).findByPostIdAndDeletedAtIsNullOrderByIdDesc(eq(postId), any(Pageable.class));
         }
 
         @Test
@@ -116,7 +116,7 @@ public class CommentServiceTest {
             List<Comment> comments = Arrays.asList(comment1, comment2);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(commentRepository.findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), eq(cursor), any(Pageable.class)))
+            when(commentRepository.findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(postId), eq(cursor), any(Pageable.class)))
                     .thenReturn(comments);
 
             // when
@@ -126,7 +126,7 @@ public class CommentServiceTest {
             assertThat(result.getComments()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
             assertThat(result.getNextCursor()).isEqualTo(9L);
-            verify(commentRepository).findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), eq(cursor), any(Pageable.class));
+            verify(commentRepository).findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(postId), eq(cursor), any(Pageable.class));
         }
 
         @Test
@@ -146,7 +146,7 @@ public class CommentServiceTest {
             List<Comment> comments = Arrays.asList(comment1, comment2);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), any(Pageable.class)))
+            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByIdDesc(eq(postId), any(Pageable.class)))
                     .thenReturn(comments);
 
             // when
@@ -173,7 +173,7 @@ public class CommentServiceTest {
             List<Comment> comments = List.of(comment1);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), any(Pageable.class)))
+            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByIdDesc(eq(postId), any(Pageable.class)))
                     .thenReturn(comments);
 
             // when
@@ -201,7 +201,7 @@ public class CommentServiceTest {
             List<Comment> comments = List.of(comment1);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(viewer));
-            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(eq(postId), any(Pageable.class)))
+            when(commentRepository.findByPostIdAndDeletedAtIsNullOrderByIdDesc(eq(postId), any(Pageable.class)))
                     .thenReturn(comments);
 
             // when
@@ -230,7 +230,7 @@ public class CommentServiceTest {
                     .hasMessage("User not found");
 
             verify(userRepository).findByEmail(email);
-            verify(commentRepository, never()).findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(anyLong(), any(Pageable.class));
+            verify(commentRepository, never()).findByPostIdAndDeletedAtIsNullOrderByIdDesc(anyLong(), any(Pageable.class));
         }
     }
 

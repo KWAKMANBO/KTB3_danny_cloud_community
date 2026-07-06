@@ -53,10 +53,10 @@ public class CommentService {
 
         if (cursor == null) {
             // cursor가 null이라면 첫 댓글 리스트 불러오기
-            comments = this.commentRepository.findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(postId, pageable);
+            comments = this.commentRepository.findByPostIdAndDeletedAtIsNullOrderByIdDesc(postId, pageable);
         } else {
             // cursor가 존재한다면 cursor를 기반으로 다음 댓글드 불러오기
-            comments = this.commentRepository.findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(postId, cursor, pageable);
+            comments = this.commentRepository.findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByIdDesc(postId, cursor, pageable);
         }
 
         boolean hasNext = comments.size() > size;
