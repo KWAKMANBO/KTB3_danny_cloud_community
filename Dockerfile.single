@@ -1,0 +1,17 @@
+# [비교용] 단일 스테이지 Dockerfile
+# 빌드 JDK 이미지 위에서 그대로 실행 → JDK/소스/Gradle 캐시가 최종 이미지에 모두 남음
+# 측정 결과: 1.69GB (멀티 스테이지 Dockerfile 대비 약 2.7배)
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+COPY . .
+
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix ./gradlew
+RUN chmod +x ./gradlew
+RUN ./gradlew build -x test --no-daemon
+
+# 부트 실행 jar만 골라 실행 (-plain.jar 제외)
+RUN cp build/libs/*-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java","-jar","app.jar"]
