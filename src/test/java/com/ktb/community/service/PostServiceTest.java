@@ -184,7 +184,7 @@ public class PostServiceTest {
             Count count2 = createCount(2L, 20L, 10L, 3L);
 
             //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
+            when(postRepository.findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(1L)).thenReturn(Optional.of(count1));
             when(countRepository.findByPostId(2L)).thenReturn(Optional.of(count2));
@@ -197,7 +197,7 @@ public class PostServiceTest {
             assertThat(result.getHasNext()).isTrue();
             assertThat(result.getNextCursor()).isEqualTo(2L);
             //verify(userRepository).findByEmail(email);
-            verify(postRepository).findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class));
+            verify(postRepository).findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class));
         }
 
         @Test
@@ -221,7 +221,7 @@ public class PostServiceTest {
             Count count2 = createCount(9L, 8L, 4L, 2L);
 
             //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class)))
+            when(postRepository.findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(cursor), any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(8L)).thenReturn(Optional.of(count1));
             when(countRepository.findByPostId(9L)).thenReturn(Optional.of(count2));
@@ -233,7 +233,7 @@ public class PostServiceTest {
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
             //verify(userRepository).findByEmail(email);
-            verify(postRepository).findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class));
+            verify(postRepository).findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(cursor), any(Pageable.class));
         }
 
         @Test
@@ -254,7 +254,7 @@ public class PostServiceTest {
             List<Post> posts = Arrays.asList(post1, post2);
 
             //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
+            when(postRepository.findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class)))
                     .thenReturn(posts);
             when(countRepository.findByPostId(anyLong())).thenReturn(Optional.empty());
 

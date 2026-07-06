@@ -75,10 +75,10 @@ public class PostService {
         List<Post> posts;
         if (cursor == null) {
             // null이면 첫페이지
-            posts = this.postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
+            posts = this.postRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
         } else {
             // 다음 페이지
-            posts = this.postRepository.findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(cursor, pageable);
+            posts = this.postRepository.findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(cursor, pageable);
         }
 
         boolean hasNext = posts.size() > size;
