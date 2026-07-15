@@ -11,6 +11,7 @@ DELETED_PCT="${3:-25}"   # soft-delete 비율(%). (deleted_at, id) 인덱스 효
 echo ">>> 시딩 시작: ${COUNT} 건 (user_id=${USER_ID}, 삭제 ${DELETED_PCT}%)"
 START=$(date +%s)
 
+# benchpass: 로컬 벤치 전용 컨테이너의 더미 비밀번호 (실서비스와 무관, 노출돼도 위험 없음)
 docker exec -i -e MYSQL_PWD=benchpass bench-mysql mysql --default-character-set=utf8mb4 -uroot ktb_community <<SQL
 SET @target = ${COUNT};
 SET @uid = ${USER_ID};

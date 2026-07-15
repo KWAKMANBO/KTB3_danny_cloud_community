@@ -9,6 +9,7 @@
 set -euo pipefail
 SIZE="${1:-20}"
 BASE="${BASE:-http://localhost:8080/api}"
+# benchpass: 로컬 벤치 전용 컨테이너의 더미 비밀번호 (실서비스와 무관, 노출돼도 위험 없음)
 MYSQL="docker exec -i -e MYSQL_PWD=benchpass bench-mysql mysql -N -uroot ktb_community"
 
 # 1) 로그인 → access_token 추출

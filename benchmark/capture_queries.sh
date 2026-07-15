@@ -12,6 +12,7 @@ BASE="${BASE:-http://localhost:8080/api}"
 # 실행 위치(CWD)와 무관하게 이 스크립트가 있는 디렉토리에 저장
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT="${SCRIPT_DIR}/nplus1_${LABEL}.log"
+# benchpass: 로컬 벤치 전용 컨테이너의 더미 비밀번호 (실서비스와 무관, 노출돼도 위험 없음)
 MYSQL="docker exec -i -e MYSQL_PWD=benchpass bench-mysql mysql -N -uroot ktb_community"
 
 # 1) 로그인 → 토큰

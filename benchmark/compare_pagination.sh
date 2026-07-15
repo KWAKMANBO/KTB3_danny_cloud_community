@@ -12,6 +12,7 @@ SIZE="${1:-20}"
 DEPTHS=(0 1000 10000 100000 500000 900000)
 
 # MYSQL_PWD로 비밀번호 전달 → "password on command line insecure" 경고 억제
+# benchpass: 로컬 벤치 전용 컨테이너의 더미 비밀번호 (실서비스와 무관, 노출돼도 위험 없음)
 MYSQL="docker exec -i -e MYSQL_PWD=benchpass bench-mysql mysql -uroot ktb_community"
 
 MAXID=$($MYSQL -N -e "SELECT MAX(post_id) FROM post;")
