@@ -1,0 +1,42 @@
+# 로컬 성능 벤치마크 스택: MySQL + Redis + App
+# 사용법:
+#   docker compose -f benchmark/docker-compose.bench.yml up -d
+#   (앱 이미지는 사전 빌드 필요: docker build -t community-be-multi:bench -f Dockerfile .)
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bench-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: benchpass
+      MYSQL_DATABASE: ktb_community
+    command:
+      - --local-infile=1                       # 대량 시딩(LOAD DATA) 허용
+      - --innodb-flush-log-at-trx-commit=2      # 시딩 속도 향상
+      - --max-connections=500
+    ports:
+      - "3307:3306"                             # 호스트 3307 (로컬 MySQL과 충돌 방지)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pbenchpass"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7
+    container_name: bench-redis
+    ports:
+      - "6380:6379"                             # 호스트 6380
+
+  app:
+    image: community-be-multi:bench
+    pull_policy: never                          # 로컬 빌드 이미지 사용 (레지스트리 pull 금지)
+    container_name: bench-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/app/.env:ro                     # spring-dotenv 파일 존재 보장
+    ports:
+      - "8080:8080"
