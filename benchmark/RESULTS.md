@@ -61,9 +61,9 @@
 **After 5 분해:** 목록+작성자 join fetch 1 + count `IN(20)` 1 + like `IN(20)` 1 + findByEmail 2(JWT필터 1 + getPostList hoist 1).
 - count·like 각 20 → **1**(IN절 배치), findByEmail 21 → **2**, 작성자 → 목록에 **join fetch** 흡수.
 - 남은 findByEmail 중복 1건은 `SecurityContext` principal 재사용으로 추가 축소 가능(미세 최적화, N+1 아님).
-- 증거 로그: [`nplus1_before.log`](nplus1_before.log) / [`nplus1_after.log`](nplus1_after.log) / [`nplus1_after5.log`](nplus1_after5.log)
+- 증거 로그: [`nplus1_before.log`](nplus1_before.log) / [`nplus1_after.log`](nplus1_after.log) / [`nplus1_after5.log`](nplus1_after5.log) / [`nplus1_after_multiuser.log`](nplus1_after_multiuser.log)
 
-**size 무관 상수 검증 (핵심 증거):**
+**size 무관 상수 검증:**
 
 | size | Before (N+1) | After (배치) |
 |--:|--:|--:|
@@ -72,17 +72,71 @@
 
 → After는 size와 무관하게 5개. IN절 원소 수만 size 따라 변하고(20→5), 쿼리 **개수는 불변** = N+1 해소.
 
+**작성자 다양성 검증 (다중 유저):**
+
+위 측정은 게시글 100만 건이 모두 같은 작성자(`user_id=1`)인 조건이었다. 이 경우 작성자 로딩이
+영속성 컨텍스트 캐시로 1회만 잡히므로, **Before가 실제보다 과소 측정**된다(작성자가 모두 다르면 20회 → Before ≈ 82).
+
+유저를 1,000명으로 늘리고 `post.user_id`를 분산시킨 뒤 재측정:
+
+| 조건 | 작성자 수 | After SELECT 수 |
+|---|--:|--:|
+| 초기 시딩 | 1명 | 5 |
+| 다중 유저 | **1,000명** | **5** (변화 없음) |
+
+목록 쿼리가 `from post p join user u on u.user_id = p.user_id ... limit ?` 이므로,
+20개 게시글의 작성자가 전부 달라도 **이 한 쿼리로 모두 로딩**된다.
+→ `join fetch`가 작성자 N+1을 실제로 차단함을 확인. (join fetch가 없었다면 여기서 작성자 조회 20회가 추가됐을 것)
+
 *(avg/p95/req·s는 k6 측정 예정)*
 
 ---
 
 ## 실험 3 — `(deleted_at, post_id)` 복합 인덱스 (보조)
-커서 쿼리 `WHERE deleted_at IS NULL AND post_id < ? ORDER BY post_id DESC`에 대한 인덱스 효과.
-(삭제 비율 25% 조건에서 PK 단독 스캔 대비 개선폭 관측.)
+커서 쿼리 `WHERE deleted_at IS NULL AND post_id < ? ORDER BY post_id DESC LIMIT 20`에
+복합 인덱스를 추가하고 전/후를 `EXPLAIN ANALYZE`로 비교. (측정: [`index_experiment.sh`](index_experiment.sh))
 
-| 단계 | 인덱스 | 첫 페이지 p95 | 깊은 페이지 p95 |
-|---|---|---:|---:|
-| Before | PK(post_id)만 | | |
-| After | + `(deleted_at, post_id)` | | |
+상세 기록: [`인덱스검증_claude.md`](인덱스검증_claude.md)
 
-*(measured 예정)*
+> **1차 측정은 폐기했다.** `SELECT post_id`만 조회해 `(deleted_at, post_id)` 인덱스로 **커버링 스캔이 성립**했고
+> "cursor=100,000에서 40% 개선"이 나왔으나, 실제 목록 쿼리는 `title·content·created_at·user_id` + **user 조인**이
+> 필요해 커버링이 성립하지 않는다. 아래는 실제 컬럼 구성으로 재측정한 결과다.
+
+### 결과 — 복합 인덱스는 채택되지 않음
+
+**[B] post 컬럼만 조회** (`post_id, title, content, created_at, user_id`)
+
+| cursor(post_id <) | Before (PK 단독) | After (인덱스 존재) | After 실행계획 | 채택 |
+|--:|--:|--:|---|:--:|
+| 1,000,000 | 0.071 ms | 0.052 ms | Index range scan **PRIMARY** | ✗ |
+| 500,000 | 0.074 ms | 0.053 ms | Index range scan **PRIMARY** | ✗ |
+| 100,000 | 0.050 ms | 0.074 ms | Index range scan **PRIMARY** | ✗ |
+
+- `idx_post_deleted_id`가 **단 한 번도 채택되지 않았다.** 세 경우 모두 PK 스캔 유지, 실제 스캔 행수 20행.
+- 시간 차이는 **측정 노이즈 수준**(0.05~0.07ms 진동). AFTER가 더 느린 구간(cursor=100,000)도 있어 개선으로 볼 수 없다.
+
+**해석:** 실제 컬럼을 조회하는 순간 커버링이 불가능해지고, 복합 인덱스를 타면 행마다 클러스터드 인덱스로 돌아가
+나머지 컬럼을 읽는 **테이블 룩업**이 추가된다. 옵티마이저는 그 비용을 알기에 PK 단독 스캔을 고수한다.
+
+**결론:** `(deleted_at, post_id)` 복합 인덱스는 **추가할 이유가 없다.** 읽기 이득이 없는 반면
+**쓰기 비용**(INSERT/UPDATE/DELETE마다 인덱스 갱신)과 저장 공간이 든다. 실험 후 DROP하여 원복.
+
+> 부수적 결론: id 커서 + PK 조합은 이미 최적에 가깝다. "느리면 인덱스 추가"가 아니라
+> **쿼리가 실제로 무엇을 읽는지 확인한 뒤 판단해야 한다**는 사례.
+
+### 파생 검증 — 조인 쿼리의 실행계획 (join fetch 안전성)
+
+[A] 작성자 join 형태(= 프로덕션 목록 쿼리)를 측정하다 **597~1084ms**라는 이상값을 발견했다.
+실행계획이 **해시 조인 + 전체 정렬**로, 75만 행을 모두 조인·정렬한 뒤 20개를 취해 **LIMIT 조기 종료가 무력화**된 상태였다.
+
+원인을 좁히기 위해 유저 수를 늘려 재측정([`verify_join_plan.sh`](verify_join_plan.sh)):
+
+| 조건 | actual time | 실행계획 | post 스캔 행수 |
+|---|--:|---|--:|
+| 유저 **1명** | **1084 ms** | Hash join + Sort | 999,999 |
+| 유저 **1,000명** | **0.091 ms** | **Nested loop + PK 조회** | **20** |
+
+→ 유저가 1명뿐이라 옵티마이저가 "user는 1행이니 해시 조인이 싸다"고 오판한 **시딩 데이터 아티팩트**로 확정.
+작성자가 다양해지자 중첩 루프를 선택해 인덱스 순서로 20행만 읽고 멈추며, Sort 노드도 사라졌다.
+
+**결론: `join fetch p.user`는 프로덕션에서 안전하다.** 커서 페이징의 O(1) 특성이 유지되며 N+1 개선은 회귀를 만들지 않았다.
