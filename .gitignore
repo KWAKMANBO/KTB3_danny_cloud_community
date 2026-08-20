@@ -71,3 +71,6 @@ replay_pid*
 ### Obsidian ###
 .obsidian/
 **/.obsidian/
+
+### 로컬 전용 에이전트 문서 ###
+AGENTS.md
