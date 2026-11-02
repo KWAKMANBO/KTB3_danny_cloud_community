@@ -14,10 +14,10 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("select c from Comment c join fetch c.user where c.post.id = :postId and c.deletedAt is null order by c.id desc")
-    List<Comment> findByPostIdAndDeletedAtIsNullOrderByCreatedAtDesc(@Param("postId") Long postId, Pageable pageable);
+    List<Comment> findByPostIdAndDeletedAtIsNullOrderByIdDesc(@Param("postId") Long postId, Pageable pageable);
 
     @Query("select c from Comment c join fetch c.user where c.post.id = :postId and c.id < :cursor and c.deletedAt is null order by c.id desc ")
-    List<Comment> findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(
+    List<Comment> findByPostIdAndIdLessThanAndDeletedAtIsNullOrderByIdDesc(
             @Param("postId") Long postId, @Param("cursor") Long cursor, Pageable pageable);
 
     List<Comment> findByPostId(Long postId);

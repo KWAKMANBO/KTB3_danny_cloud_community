@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -183,11 +184,12 @@ public class PostServiceTest {
             Count count1 = createCount(1L, 10L, 5L, 2L);
             Count count2 = createCount(2L, 20L, 10L, 3L);
 
-            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(postRepository.findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class)))
                     .thenReturn(posts);
-            when(countRepository.findByPostId(1L)).thenReturn(Optional.of(count1));
-            when(countRepository.findByPostId(2L)).thenReturn(Optional.of(count2));
+            // 배치 조회: count는 findByPostIn, 좋아요는 likedPostIds (1번 글만 좋아요)
+            when(countRepository.findByPostIn(anyList())).thenReturn(List.of(count1, count2));
+            when(likeService.likedPostIds(eq(1L), anyList())).thenReturn(Set.of(1L));
 
             // when
             CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
@@ -196,8 +198,13 @@ public class PostServiceTest {
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isTrue();
             assertThat(result.getNextCursor()).isEqualTo(2L);
-            //verify(userRepository).findByEmail(email);
-            verify(postRepository).findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class));
+            // 배치 로직 검증: count 값 매핑 + 좋아요 여부
+            assertThat(result.getPosts().get(0).getViews()).isEqualTo(10L);
+            assertThat(result.getPosts().get(0).isLiked()).isTrue();   // 1번 글: 좋아요함
+            assertThat(result.getPosts().get(1).isLiked()).isFalse();  // 2번 글: 안 함
+            verify(userRepository).findByEmail(email);
+            verify(postRepository).findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class));
+            verify(countRepository).findByPostIn(anyList());
         }
 
         @Test
@@ -220,11 +227,11 @@ public class PostServiceTest {
             Count count1 = createCount(8L, 5L, 3L, 1L);
             Count count2 = createCount(9L, 8L, 4L, 2L);
 
-            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class)))
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(postRepository.findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(cursor), any(Pageable.class)))
                     .thenReturn(posts);
-            when(countRepository.findByPostId(8L)).thenReturn(Optional.of(count1));
-            when(countRepository.findByPostId(9L)).thenReturn(Optional.of(count2));
+            when(countRepository.findByPostIn(anyList())).thenReturn(List.of(count1, count2));
+            when(likeService.likedPostIds(eq(1L), anyList())).thenReturn(Set.of());  // 좋아요 없음
 
             // when
             CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
@@ -232,8 +239,8 @@ public class PostServiceTest {
             // then
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
-            //verify(userRepository).findByEmail(email);
-            verify(postRepository).findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(eq(cursor), any(Pageable.class));
+            verify(userRepository).findByEmail(email);
+            verify(postRepository).findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(eq(cursor), any(Pageable.class));
         }
 
         @Test
@@ -253,10 +260,12 @@ public class PostServiceTest {
 
             List<Post> posts = Arrays.asList(post1, post2);
 
-            //when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-            when(postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(any(Pageable.class)))
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(postRepository.findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class)))
                     .thenReturn(posts);
-            when(countRepository.findByPostId(anyLong())).thenReturn(Optional.empty());
+            // count 없음(빈 목록) → views 등 0으로 폴백되는지 확인
+            when(countRepository.findByPostIn(anyList())).thenReturn(List.of());
+            when(likeService.likedPostIds(eq(1L), anyList())).thenReturn(Set.of());
 
             // when
             CursorPageResponseDto<PostResponseDto> result = postService.getPostList(cursor, size, email);
@@ -264,7 +273,8 @@ public class PostServiceTest {
             // then
             assertThat(result.getPosts()).hasSize(2);
             assertThat(result.getHasNext()).isFalse();
-            //verify(userRepository).findByEmail(email);
+            assertThat(result.getPosts().get(0).getViews()).isEqualTo(0L);  // count 없을 때 폴백
+            verify(userRepository).findByEmail(email);
         }
     }
 
@@ -677,6 +687,7 @@ public class PostServiceTest {
 
     private Count createCount(Long postId, Long viewCount, Long likeCount, Long commentCount) {
         Count count = new Count();
+        count.setId(postId);   // @MapsId: Count.id == post_id (findByPostIn 후 Map 키로 사용됨)
         count.setViewCount(viewCount);
         count.setLikeCount(likeCount);
         count.setCommentCount(commentCount);

@@ -13,10 +13,12 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    // deletedAt이 null인 게시글만 조회 (삭제되지 않은 게시글)
-    List<Post> findByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
-    List<Post> findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(Long cursor, Pageable pageable);
+    @Query("select p from Post p join fetch p.user where p.deletedAt is null order by p.id desc")
+    List<Post> findByDeletedAtIsNullOrderByIdDesc(Pageable pageable);
+
+    @Query("select p from Post p join fetch p.user where p.id < :cursor and p.deletedAt is null order by p.id desc")
+    List<Post> findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(@Param("cursor") Long cursor, Pageable pageable);
 
     List<Post> findAllByUser(User user);
 

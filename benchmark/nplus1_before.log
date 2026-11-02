@@ -1,0 +1,63 @@
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select p1_0.post_id,p1_0.content,p1_0.created_at,p1_0.deleted_at,p1_0.title,p1_0.updated_at,p1_0.user_id from post p1_0 where p1_0.deleted_at is null order by p1_0.post_id desc limit 21
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.user_id=1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999999
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999999,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999998
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999998,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999997
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999997,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999996
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999996,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999995
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999995,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999994
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999994,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999993
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999993,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999992
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999992,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999991
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999991,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999990
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999990,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999989
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999989,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999988
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999988,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999987
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999987,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999986
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999986,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999985
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999985,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999984
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999984,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999983
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999983,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999982
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999982,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999981
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999981,1) and l1_0.deleted_at is null limit 1
+select c1_0.post_id,c1_0.comment_count,c1_0.like_count,c1_0.view_count from count c1_0 left join post p1_0 on p1_0.post_id=c1_0.post_id where p1_0.post_id=999980
+select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.nickname,u1_0.password,u1_0.profile_image_url,u1_0.updated_at from user u1_0 where u1_0.email='benchuser@test.com'
+select l1_0.post_id,l1_0.user_id from `like` l1_0 where (l1_0.post_id,l1_0.user_id)=(999980,1) and l1_0.deleted_at is null limit 1

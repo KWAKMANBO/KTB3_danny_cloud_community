@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class LikeService {
@@ -92,5 +95,14 @@ public class LikeService {
         LikePK pk = new LikePK(user.getId(), postId);
 
         return this.likeRepository.existsByIdAndDeletedAtIsNull(pk);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Set<Long> likedPostIds(Long userId, List<Long> postIds) {
+        if (postIds == null || postIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(this.likeRepository.findLikedPostIds(userId, postIds));
     }
 }

@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,17 +70,16 @@ public class PostService {
         return new CrudPostResponseDto(savedPost.getId());
     }
 
-    @Transactional
     public CursorPageResponseDto<PostResponseDto> getPostList(Long cursor, int size, String email) {
         Pageable pageable = PageRequest.of(0, size + 1);
 
         List<Post> posts;
         if (cursor == null) {
             // null이면 첫페이지
-            posts = this.postRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
+            posts = this.postRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
         } else {
             // 다음 페이지
-            posts = this.postRepository.findByIdLessThanAndDeletedAtIsNullOrderByCreatedAtDesc(cursor, pageable);
+            posts = this.postRepository.findByIdLessThanAndDeletedAtIsNullOrderByIdDesc(cursor, pageable);
         }
 
         boolean hasNext = posts.size() > size;
@@ -87,10 +88,20 @@ public class PostService {
             posts = posts.subList(0, size);
         }
 
+        User me = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+
+        Map<Long, Count> countMap = this.countRepository.findByPostIn(posts).stream()
+                .collect(Collectors.toMap(Count::getId, count -> count));
+
+        Set<Long> likedPostIds = this.likeService.likedPostIds(me.getId(), postIds);
+
         List<PostResponseDto> postContent = posts.stream()
                 .map(post -> {
-                    Count count = this.countRepository.findByPostId(post.getId()).orElse(null);
-                    boolean isLiked = likeService.checkLike(post.getId(), email);
+                    Count count = countMap.get(post.getId());
+                    boolean isLiked = likedPostIds.contains(post.getId());
                     return PostResponseDto.builder()
                             .id(post.getId())
                             .title(post.getTitle())

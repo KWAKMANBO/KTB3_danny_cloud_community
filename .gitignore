@@ -67,3 +67,10 @@ replay_pid*
 ### macOS ###
 .DS_Store
 **/.DS_Store
+
+### Obsidian ###
+.obsidian/
+**/.obsidian/
+
+### 로컬 전용 에이전트 문서 ###
+AGENTS.md
