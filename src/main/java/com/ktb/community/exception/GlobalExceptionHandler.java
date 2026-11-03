@@ -3,6 +3,7 @@ package com.ktb.community.exception;
 import com.ktb.community.dto.response.ApiResponseDto;
 import com.ktb.community.exception.custom.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -143,6 +144,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponseDto.error(e.getMessage()));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleConstraintViolation(ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream().map(v -> v.getMessage()).findFirst().orElse("Wrong Request Parameter.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDto.error(msg));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDto<?>> handleGeneralException(Exception e) {
         System.err.println("=== Unexpected Exception Occurred ===");
@@ -152,5 +159,6 @@ public class GlobalExceptionHandler {
         System.err.println("=====================================");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponseDto.error("A temporary error has occurred. Please try again later."));
     }
+
 
 }
