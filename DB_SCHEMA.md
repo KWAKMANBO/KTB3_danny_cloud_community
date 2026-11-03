@@ -219,4 +219,4 @@ post (N) ──< like >── (N) user 게시글↔유저 다대다 (좋아요)
   → 배치 조회/`join fetch`로 최적화 가능.
 - `varchar(255)` 기본값이 `content`(게시글/댓글 본문)에도 적용되어 긴 본문 저장에 제약 → `TEXT` 검토.
 
-> 위 두 개선점(인덱스 / N+1)은 성능 측정 프로젝트(`benchmark/`)에서 Before/After로 정량 측정 중.
+> 위 두 개선점(인덱스 / N+1)은 성능 측정 프로젝트(`docs/benchmark/`)에서 Before/After로 정량 측정 중.

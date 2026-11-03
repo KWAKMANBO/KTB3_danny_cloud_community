@@ -2,9 +2,9 @@
 # GET /posts?size=20 1회 호출 동안 MySQL이 실행한 실제 쿼리를 그대로 캡처한다.
 # N+1 개선 Before/After의 "실물 증거" 아티팩트 생성용.
 #
-# 사용법: ./benchmark/capture_queries.sh <label> [size]
-#   ./benchmark/capture_queries.sh before 20   → benchmark/nplus1_before.log
-#   ./benchmark/capture_queries.sh after  20   → benchmark/nplus1_after.log
+# 사용법: ./docs/benchmark/capture_queries.sh <label> [size]
+#   ./docs/benchmark/capture_queries.sh before 20   → docs/benchmark/nplus1_before.log
+#   ./docs/benchmark/capture_queries.sh after  20   → docs/benchmark/nplus1_after.log
 set -euo pipefail
 LABEL="${1:?label 필요 (before|after)}"
 SIZE="${2:-20}"

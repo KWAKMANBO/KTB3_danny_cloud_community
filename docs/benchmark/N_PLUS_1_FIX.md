@@ -225,5 +225,5 @@ select u.user_id, ... from user u where u.email = 'benchuser@test.com'
 
 ## 검증
 - `./gradlew compileJava` 통과 (JBR 21).
-- After 측정: `./benchmark/capture_queries.sh after 20` → **5개** 확인 ([`nplus1_after.log`](nplus1_after.log)).
+- After 측정: `./docs/benchmark/capture_queries.sh after 20` → **5개** 확인 ([`nplus1_after.log`](nplus1_after.log)).
 - size 무관 상수: `capture_queries.sh after 5`로 재측정 시에도 5개 유지 예상(게시글 수에 비례하지 않음).

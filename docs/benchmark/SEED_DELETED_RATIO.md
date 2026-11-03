@@ -2,7 +2,7 @@
 
 벤치마크 시딩([`seed.sh`](seed.sh))에서 게시글의 **25%를 `deleted_at`이 채워진 soft-delete 상태**로 생성한다.
 ```bash
-./benchmark/seed.sh 1000000 1 25   # 총 100만 건 중 25만 건(25%) 삭제 처리
+./docs/benchmark/seed.sh 1000000 1 25   # 총 100만 건 중 25만 건(25%) 삭제 처리
 ```
 > 구현: `IF(MOD(n, 100) < 25, ...deleted..., NULL)` — n을 100으로 나눈 나머지가 25 미만인 행을 삭제 처리해 정확히 25%를 재현(랜덤 아님, 결정적).
 
@@ -49,7 +49,7 @@ WHERE deleted_at IS NULL AND post_id < ? ORDER BY post_id DESC LIMIT 20
 - **너무 낮으면**(예: 5%) 실험 3의 인덱스 효과가 약하게 나올 수 있다.
 - **더 극적인 인덱스 효과**를 원하면 비율을 높여 재시딩할 수 있다.
   ```bash
-  ./benchmark/seed.sh 1000000 1 50   # 삭제 50%
+  ./docs/benchmark/seed.sh 1000000 1 50   # 삭제 50%
   ```
 
 ## 요약
