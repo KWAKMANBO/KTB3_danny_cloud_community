@@ -194,7 +194,7 @@ Covering index range scan on post using idx_post_deleted_id
 교차검증 실행:
 
 ```bash
-./benchmark/index_experiment.sh 20
+./docs/benchmark/index_experiment.sh 20
 ```
 
 실험 후 인덱스 제거:

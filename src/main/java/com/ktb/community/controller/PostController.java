@@ -9,14 +9,18 @@ import com.ktb.community.service.CommentService;
 import com.ktb.community.service.LikeService;
 import com.ktb.community.service.PostService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/posts")
+@Validated
 public class PostController {
     private final PostService postService;
     private final CommentService commentService;
@@ -32,7 +36,7 @@ public class PostController {
     @GetMapping()
     public ResponseEntity<ApiResponseDto<CursorPageResponseDto<PostResponseDto>>> getPosts(
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(20) int size,
             Authentication authentication
     ) {
         String email = authentication.getName();
@@ -49,7 +53,7 @@ public class PostController {
 
     @GetMapping("/{postId}/comments")
     public ResponseEntity<ApiResponseDto<?>> getComment(@PathVariable Long postId, @RequestParam(required = false) Long cursor,
-                                                        @RequestParam(defaultValue = "5") int size, Authentication authentication) {
+                                                        @RequestParam(defaultValue = "5") @Min(1) @Max(20) int size, Authentication authentication) {
         String email = authentication.getName();
 
         CursorCommentResponseDto<CommentResponseDto> cursorCommentResponseDto = this.commentService.getCommentList(postId, cursor, size, email);

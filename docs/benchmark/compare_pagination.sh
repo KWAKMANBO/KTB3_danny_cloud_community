@@ -3,8 +3,8 @@
 # 같은 "깊이(depth)"에서 두 방식이 실제로 검사하는 행 수(rows examined)와
 # 실행 시간(actual time)을 비교한다. 커서의 핵심 강점 = depth와 무관하게 상수.
 #
-# 사용법: ./benchmark/compare_pagination.sh [size]
-#   ./benchmark/compare_pagination.sh 20
+# 사용법: ./docs/benchmark/compare_pagination.sh [size]
+#   ./docs/benchmark/compare_pagination.sh 20
 #
 # 전제: seed.sh 로 게시글이 시딩되어 있어야 함 (post.post_id = auto_increment).
 set -euo pipefail

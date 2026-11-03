@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 게시글/카운트 대량 시딩. 사용법: ./benchmark/seed.sh [건수] [user_id] [삭제%]
-#   ./benchmark/seed.sh 100000            # 10만 건, 삭제 25%
-#   ./benchmark/seed.sh 1000000 1 30      # 100만 건, user_id=1, 삭제 30%
-#   ./benchmark/seed.sh 1000000 1 0       # 삭제 없이 100만 건
+# 게시글/카운트 대량 시딩. 사용법: ./docs/benchmark/seed.sh [건수] [user_id] [삭제%]
+#   ./docs/benchmark/seed.sh 100000            # 10만 건, 삭제 25%
+#   ./docs/benchmark/seed.sh 1000000 1 30      # 100만 건, user_id=1, 삭제 30%
+#   ./docs/benchmark/seed.sh 1000000 1 0       # 삭제 없이 100만 건
 set -euo pipefail
 COUNT="${1:-100000}"
 USER_ID="${2:-1}"

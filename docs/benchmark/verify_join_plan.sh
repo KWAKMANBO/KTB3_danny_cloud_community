@@ -7,11 +7,11 @@
 #   STEP 2. hash_join=off 로 강제 — 중첩 루프면 빨라지는지 (비파괴적, 메커니즘 확인)
 #   STEP 3. 유저를 N명으로 늘리고 post.user_id 분산 후 재측정 (현실 조건)
 #
-# 사용법: ./benchmark/verify_join_plan.sh [유저수] [size]
-#   ./benchmark/verify_join_plan.sh 1000 20
+# 사용법: ./docs/benchmark/verify_join_plan.sh [유저수] [size]
+#   ./docs/benchmark/verify_join_plan.sh 1000 20
 #
 # ⚠️ STEP 3은 데이터를 변경한다(post.user_id 분산). 원복하려면:
-#   ./benchmark/seed.sh 1000000 1 25    # 전 게시글을 user_id=1로 되돌림
+#   ./docs/benchmark/seed.sh 1000000 1 25    # 전 게시글을 user_id=1로 되돌림
 set -euo pipefail
 USERS="${1:-1000}"
 SIZE="${2:-20}"
@@ -77,4 +77,4 @@ echo
 echo ">>> 판정 기준"
 echo "    STEP 3이 1ms 미만 + 'Nested loop' 계획 → 시딩 데이터(유저 1명) 아티팩트. 프로덕션 문제 없음."
 echo "    STEP 3도 수백 ms + 'hash join' 유지     → 구조적 문제. join fetch 재검토 필요."
-echo ">>> 데이터 원복: ./benchmark/seed.sh 1000000 1 25"
+echo ">>> 데이터 원복: ./docs/benchmark/seed.sh 1000000 1 25"

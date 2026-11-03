@@ -2,8 +2,8 @@
 # 게시글 목록 엔드포인트 1회 호출 동안 실행된 SELECT 쿼리 수 측정 (N+1 진단).
 # MySQL의 Com_select 카운터를 호출 전후로 비교한다.
 #
-# 사용법: ./benchmark/count_queries.sh [size]
-#   ./benchmark/count_queries.sh 20
+# 사용법: ./docs/benchmark/count_queries.sh [size]
+#   ./docs/benchmark/count_queries.sh 20
 #
 # 전제: bench-app(8080) 기동 + benchuser 계정 존재 + bench-mysql 기동.
 set -euo pipefail

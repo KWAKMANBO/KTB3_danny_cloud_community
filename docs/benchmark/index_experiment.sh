@@ -10,8 +10,8 @@
 #       실제 목록 쿼리는 title·content·created_at·user_id + user 조인이 필요하므로
 #       커버링이 성립하지 않는다. 그래서 아래 두 형태로 다시 측정한다.
 #
-# 사용법: ./benchmark/index_experiment.sh [size]
-#   ./benchmark/index_experiment.sh 20
+# 사용법: ./docs/benchmark/index_experiment.sh [size]
+#   ./docs/benchmark/index_experiment.sh 20
 #
 # 전제: seed.sh로 데이터 시딩됨. 실행 후 인덱스는 유지되므로 필요 시 DROP(마지막 안내 참고).
 set -euo pipefail

@@ -5,7 +5,7 @@
 
 ## 측정 조건
 - 데이터: 게시글 **1,000,000건** (노출 750,000 / soft-delete 250,000 = 25%, `count` 1:1)
-- 시딩: [`seed.sh`](seed.sh) — `./benchmark/seed.sh 1000000 1 25`
+- 시딩: [`seed.sh`](seed.sh) — `./docs/benchmark/seed.sh 1000000 1 25`
 - 환경: 로컬 Docker (MySQL 8.0 + Redis 7 + App, `community-be-multi:bench`)
 - 도구:
   - DB 레벨 — `EXPLAIN ANALYZE` ([`compare_pagination.sh`](compare_pagination.sh)): 스캔 행수 / actual time
